@@ -12,20 +12,24 @@
 				margin: 0px;
 				overflow: hidden;
 			}
-			#info {
-				position: absolute;
-				top: 0px; width: 100%;
-				text-align:center;
-				padding: 5px;
+			.vis-timeline{
+				position: fixed !important;
+				width: 100% !important;
+				top: 2em !important;
+				background-color: rgba(168, 168, 219, 0.8) !important;
+			}
+			.vis-text{
+				color: #000000 !important;
 			}
 		</style>
 	</head>
 	<body>
 
-		<div id="container"></div>
-		<div id="info">Controls:<br/>
-		    <b>WASD</b> move, <b>R|F</b> up | down, <b>Q|E</b> roll, <b>up|down</b> pitch, <b>left|right</b> yaw. Left click + mouse to look<br/>
-	 	</div>
+		<div id="container">
+		<p>
+		<code><strong>timechange</strong></code> time: <span id="timechangeEvent"></span>
+		</p>
+		</div>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/build/three.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/Animation.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/AnimationHandler.js"></script>
@@ -43,8 +47,14 @@
 		
 		<!-- Ocean -->
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/WaterShader.js"></script>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		
+		<!-- VIS.js timeline -->
+		<script src="vis/dist/vis.js"></script>
+		<link href="vis/dist/vis.css" rel="stylesheet" type="text/css" />
 
-		<script>
+		<script  type="text/javascript">
 			if ( ! Detector.webgl ) {
 				Detector.addGetWebGLMessage();
 				document.getElementById( 'container' ).innerHTML = "";
@@ -54,6 +64,11 @@
 			
 			var progress = 0;
 			var dae;
+			
+			var customDate = new Date();
+			var timeline;
+			var fileData;
+			var dataArray = [];
 			
 			var parameters = {
 				width: 2000,
@@ -67,6 +82,20 @@
 			
 			var waterNormals;
 			
+			window.onload = function() {
+				if (window.jQuery) {  
+					// jQuery is loaded  
+					
+					$.get('Data.txt', function(data) {
+						fileData = data;
+					}, 'text');
+					
+				} else {
+					// jQuery is not loaded
+					alert("JQuery is not loaded.");
+				}
+			}
+			
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis = true;
 			loader.load( './dae/Devonport_Full_Area_Transparent.dae', function ( collada ) {
@@ -78,9 +107,34 @@
 				} );
 			
 			
+			 // Create a DataSet (allows two way data-binding)
+			  var items = new vis.DataSet([
+				//{id: 1, content: 'item 1', start: '2013-04-20'},
+				//{id: 2, content: 'item 2', start: '2013-04-14'},
+				//{id: 3, content: 'item 3', start: '2013-04-18'},
+				//{id: 4, content: 'item 4', start: '2013-04-16', end: '2013-04-19'},
+				//{id: 5, content: 'item 5', start: '2013-04-25'},
+				//{id: 6, content: 'item 6', start: '2013-04-27'}
+			  ]);
+			  
+			// Configuration for the Timeline
+			var options = {
+				min: new Date(2000,1,01),
+				max: new Date(2151,1,01),
+				minHeight: '10em',
+				zoomMin: 1814400000,
+				dataAttributes: 'all',
+				showCurrentTime: true,
+				start: new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate())
+			};
+			
+			Date.prototype.formatDDMMYYYY = function(){
+				return (this.getDate() +
+				"/" +  this.getMonth() + 1) + 
+				"/" +  this.getFullYear();
+			}
 
 			
-
 			function init() {
 				container = document.getElementById( 'container' );
 				
@@ -188,11 +242,43 @@
 				scene.add( skyBox );
 				
 				//
-				stats = new Stats();
-				container.appendChild( stats.dom );
+				//stats = new Stats();
+				//container.appendChild( stats.dom );
 				
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
+				
+				var fileContent = fileData.split('\n');
+				
+				for(var pos = 0; pos < fileContent.length; pos ++){
+					var content = fileContent[pos].split(' ');
+					dataArray.push([content[0], content[1]]);
+				}
+				console.log(dataArray);
+								
+				// Create a Timeline
+				timeline = new vis.Timeline(container, items, options);
+				
+				// Set first time bar
+				customDate = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
+				timeline.addCustomTime(customDate, 't1');
+				document.getElementById('timechangeEvent').innerHTML = customDate.formatDDMMYYYY();;
+				
+				timeline.on('timechange', function (properties) {
+				var timeString = properties.time.formatDDMMYYYY();
+					document.getElementById('timechangeEvent').innerHTML = timeString;
+					console.log(dataArray.length);
+					for(var pos = 0; pos < dataArray.length; pos ++){
+						var strVal = dataArray[pos][0].split('/');
+						
+						if(strVal[2] < timeString.split('/')[2] && dataArray[pos+1][0].split('/')[2] > timeString.split('/')[2]){
+						console.log("YES");
+							mirrorMesh.position.set(0, dataArray[pos][1], 0);
+							
+						}
+					}
+				});
+				
 			}
 			
 			function onWindowResize() {
@@ -205,7 +291,7 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
-				stats.update();
+				//stats.update();
 			}
 			
 			
