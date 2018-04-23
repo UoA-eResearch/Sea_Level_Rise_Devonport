@@ -14,11 +14,21 @@
 			}
 			.vis-timeline{
 				position: fixed !important;
-				top: 8em !important;
-				background-color: rgba(168, 168, 219, 0.8) !important;
+				top: 10em !important;
+				background-color: rgba(154, 199, 255, 0.6) !important;
 			}
 			.vis-text{
 				color: #000000 !important;
+			}
+			.vis-custom-time{
+				background-color: #6e94ff00 !important;
+			}
+			#drop{
+				position: absolute;
+				top: 0em;
+				left: -1em;
+				width: 2em;
+				height: 3em;
 			}
 			#datechangeEvent{
 				font-weight: bold;
@@ -58,18 +68,55 @@
 					font-size: 1.7em;
 				}
 			}
+			.vis-custom-time:hover .tooltiptext {
+				visibility: visible;
+			}
+			.tooltip{
+				position: fixed;
+				top: 9em;
+				display: inline-block;
+				border-bottom: 1px dotted black;
+			}
+			.tooltiptext{
+			    visibility: hidden;
+				width: 120px;
+				background-color: black;
+				color: #fff;
+				text-align: center;
+				border-radius: 6px;
+				padding: 5px 0;
+				position: absolute;
+				z-index: 1;
+				bottom: 150%;
+				left: 50%;
+				margin-left: -60px;
+			}
+			.tooltip .tooltiptext::after {
+				content: "";
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				margin-left: -5px;
+				border-width: 5px;
+				border-style: solid;
+				border-color: black transparent transparent transparent;
+			}
 		</style>
 	</head>
 	<body>
 
 		<div id="container"></div>
-		<div id="title">Sea Level Rise Devonport</div>
+			<div id="title">Sea Level Rise Devonport</div>
 			<div id="dateContainer"></br>
 				<div id="datechangeEventFixed">Date:  </div>
 				<div id="datechangeEvent"></div>
 				<div id="sealevelChangedFixed">Sea Level:  </div> m
 				<div id="sealevelChangedEvent"></div>
+			</div>
 		</div>
+		
+		
+		
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/build/three.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/Animation.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/AnimationHandler.js"></script>
@@ -90,6 +137,9 @@
 		
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		
+		<script src="vis/dist/vis-timeline-graph2d.min.js"></script>
+		<link href="vis/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css">
+		
 		<!-- VIS.js timeline -->
 		<script src="vis/dist/vis.js"></script>
 		<link href="vis/dist/vis.css" rel="stylesheet" type="text/css" />
@@ -99,7 +149,7 @@
 				Detector.addGetWebGLMessage();
 				document.getElementById( 'container' ).innerHTML = "";
 			}
-			var container, stats;
+			var container, stats, contTimeline;
 			var camera, scene, renderer, controls;
 			
 			var progress = 0;
@@ -121,14 +171,49 @@
 			};
 			
 			var waterNormals;
+			var addImageNow = null;
+			
+			
+						
+			var loader = new THREE.ColladaLoader();
+			loader.options.convertUpAxis = true;
+
+			
+			
+
+
 			
 			window.onload = function() {
 				if (window.jQuery) {  
-					// jQuery is loaded  
-					
+					// jQuery is loaded
 					$.get('Data.txt', function(data) {
 						fileData = data;
 					}, 'text');
+					
+					
+					function addImage(){
+					    var x = document.createElement("IMG");
+						x.setAttribute("src", "../icons/drop.svg");
+						x.setAttribute("width", "304");
+						x.setAttribute("height", "228");
+						x.setAttribute("id", "drop");
+						console.log(x);
+						document.querySelector(".vis-custom-time").prepend(x);
+						
+						var tip = document.createElement("DIV");
+						tip.setAttribute("class", "tooltip");
+						
+						var tiptext = document.createElement("DIV");
+						tiptext.setAttribute("class", "tooltiptext");
+						tiptext.innerHTML = "Move to Adjust Waterlevel";
+						
+						tip.appendChild(tiptext);
+						
+						document.querySelector(".vis-custom-time").prepend(tip);
+					}
+					
+					
+					addImageNow = addImage;
 					
 				} else {
 					// jQuery is not loaded
@@ -136,19 +221,23 @@
 				}
 			}
 			
-			var loader = new THREE.ColladaLoader();
-			loader.options.convertUpAxis = true;
+			
+			
 			loader.load( './dae/Devonport_Full_Area_Transparent.dae', function ( collada ) {
-				console.log("model loaded");
 				dae = collada.scene;
 				
 				init();
 				animate();
-				} );
+				
+				setTimeout(function () {
+					addImageNow();
+				}, 1000);
+				
+			} );
 			
-			
-			 // Create a DataSet (allows two way data-binding)
+				// Create a DataSet (allows two way data-binding)
 			  var items = new vis.DataSet([
+			  //{id: 2, content: 'Item 2', start: '2016-01-02', title: '<b>Bold</b>'},
 				//{id: 1, content: 'item 1', start: '2013-04-20'},
 				//{id: 2, content: 'item 2', start: '2013-04-14'},
 				//{id: 3, content: 'item 3', start: '2013-04-18'},
@@ -163,11 +252,16 @@
 				max: new Date(2150,31,12),
 				minHeight: '10em',
 				width: '100%',
-				zoomMin: 1814400000,
 				dataAttributes: 'all',
 				showCurrentTime: true,
-				start: new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate())
+				start: new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate()),
+				tooltip: {
+				  followMouse: true,
+				  overflowMethod: 'cap'
+				}
 			};
+			
+
 			
 			Date.prototype.formatDDMMYYYY = function(){
 			console.log(this.getMonth());
@@ -175,10 +269,10 @@
 				"/" +  ("0" + (this.getMonth() + 1)).slice(-2)) + 
 				"/" +  this.getFullYear();
 			}
-
 			
 			function init() {
 				container = document.getElementById( 'container' );
+				
 				
 				//
 				renderer = new THREE.WebGLRenderer();
@@ -296,9 +390,13 @@
 					var content = fileContent[pos].split(' ');
 					dataArray.push([content[0], content[1]]);
 				}
+				
+
 								
 				// Create a Timeline
-				timeline = new vis.Timeline(container, items, options);
+				//timeline = new vis.Timeline(container, items, options);
+				
+				var timeline = new vis.Timeline(container, items, options);
 				
 				// Set first time bar
 				customDate = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
@@ -315,6 +413,9 @@
 					setTimeStringAtDate(timeString);
 					setSeaLevelAtDate(timeString);
 				});
+				
+				timeline.setWindow('2000-01-01', '2150-12-31');
+				
 				
 			}
 			
