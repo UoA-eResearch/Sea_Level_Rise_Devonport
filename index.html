@@ -175,7 +175,7 @@
 				<div id="sealevelChangedFixed">Sea Level:  </div> m
 				<div id="sealevelChangedEvent"></div>
 			</div>
-			<button type="button" class="button helpBut">Help</button>
+			<button type="button" class="button helpBut" id="helpBut" onclick="toggleHelpNow()">Help</button>
 		</div>
 		
 		
@@ -235,14 +235,13 @@
 			
 			var waterNormals;
 			var addImageNow = null;
+			var toggleHelpNow = null;
 			
 			
 						
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis = true;
 
-			
-			
 
 
 			
@@ -256,7 +255,7 @@
 					
 					function addImage(){
 					    var drop = document.createElement("IMG");
-						drop.setAttribute("src", "../icons/drop.svg");
+						drop.setAttribute("src", "icons/drop.svg");
 						drop.setAttribute("id", "drop");
 						document.querySelector(".vis-custom-time").prepend(drop);
 						
@@ -265,6 +264,7 @@
 						
 						var tiptext1 = document.createElement("DIV");
 						tiptext1.setAttribute("class", "tooltiptext1");
+						tiptext1.setAttribute("id", "tooltiptext1");
 						tiptext1.innerHTML = "Move to Adjust Sea Level";
 						
 						tip1.appendChild(tiptext1);
@@ -275,19 +275,47 @@
 						
 						var tiptext2 = document.createElement("DIV");
 						tiptext2.setAttribute("class", "tooltiptext2");
+						tiptext2.setAttribute("id", "tooltiptext2");
 						tiptext2.innerHTML = "Current Date";
 						
 						tip2.appendChild(tiptext2);
 						document.querySelector(".vis-current-time").prepend(tip2);
 						
 						var curDate = document.createElement("IMG");
-						curDate.setAttribute("src", "../icons/pin.svg");
+						curDate.setAttribute("src", "icons/pin.svg");
 						curDate.setAttribute("id", "curDateImg");
 						document.querySelector(".vis-current-time").prepend(curDate);
 					}
 					
 					
 					addImageNow = addImage;
+					
+					function toggleHelp(){
+						var x = document.getElementById("tooltiptext1");
+						var helpBut = document.getElementById("helpBut");
+						
+						if (x.style.visibility === "hidden") {
+							x.style.visibility = "visible";
+							
+							helpBut.stylebackground = "rgba(8, 161, 255, 0.6)";
+						} else {
+							x.style.visibility = "hidden";
+							
+							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
+						}
+						var y = document.getElementById("tooltiptext2");
+						if (y.style.visibility === "hidden") {
+							y.style.visibility = "visible";
+							helpBut.style.background = "rgba(8, 161, 255, 0.6)";
+						} else {
+							y.style.visibility = "hidden";
+							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
+						}
+						
+					}
+					
+					toggleHelpNow = toggleHelp;
+					
 					
 				} else {
 					// jQuery is not loaded
