@@ -78,22 +78,14 @@
 					font-size: 1.7em;
 				}
 			}
-			.vis-custom-time:hover .tooltiptext1{
-				visibility: visible;
-			}
-			
-			.vis-current-time:hover .tooltiptext2 {
-				visibility: visible;
-			}
 			.tooltip{
-				position: fixed;
 				top: 9em;
+				position: fixed;
 				display: inline-block;
 				border-bottom: 1px dotted black;
 			}
 			.tooltiptext1{
-			    visibility: hidden;
-				width: 120px;
+				width: 10em;
 				background-color: black;
 				color: #fff;
 				text-align: center;
@@ -101,13 +93,13 @@
 				padding: 5px 0;
 				position: absolute;
 				z-index: 1;
-				bottom: 150%;
+				bottom: -7em;
 				left: 50%;
-				margin-left: -60px;
+				margin-left: 2em;
+				padding: 0.5em;
 			}
 			.tooltiptext2{
-			    visibility: hidden;
-				width: 120px;
+				width: 10em;
 				background-color: black;
 				color: #fff;
 				text-align: center;
@@ -118,8 +110,47 @@
 				bottom: 150%;
 				left: 50%;
 				margin-left: -60px;
+				padding: 0.5em;
+			}
+			.tooltiptext3{
+				width: 15em;
+				background-color: black;
+				color: #fff;
+				text-align: center;
+				border-radius: 6px;
+				padding: 5px 0;
+				position: absolute;
+				z-index: 1;
+				bottom: -2.5em;
+				left: 100em;
+				margin-left: -60px;
+				padding: 0.5em;
+			}
+			.tooltiptext4{
+				width: 10em;
+				background-color: black;
+				color: #fff;
+				text-align: left;
+				border-radius: 6px;
+				padding: 5px 0;
+				position: absolute;
+				z-index: 1;
+				bottom: -30em;
+				left: 80em;
+				margin-left: -60px;
+				padding: 0.5em;
 			}
 			.tooltip .tooltiptext1::after{
+				content: "";
+				position: absolute;
+				top: 30%;
+				right: 100%;
+				margin-top: -5px;
+				border-width: 5px;
+				border-style: solid;
+				border-color: transparent black transparent transparent;
+			}
+			.tooltip .tooltiptext2::after{
 				content: "";
 				position: absolute;
 				top: 100%;
@@ -129,7 +160,17 @@
 				border-style: solid;
 				border-color: black transparent transparent transparent;
 			}
-			.tooltip .tooltiptext2::after{
+			.tooltip .tooltiptext3::after{
+				content: "";
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				margin-left: -5px;
+				border-width: 5px;
+				border-style: solid;
+				border-color: black transparent transparent transparent;
+			}
+			.tooltip .tooltiptext4::after{
 				content: "";
 				position: absolute;
 				top: 100%;
@@ -175,7 +216,7 @@
 				<div id="sealevelChangedFixed">Sea Level:  </div> m
 				<div id="sealevelChangedEvent"></div>
 			</div>
-			<button type="button" class="button helpBut" id="helpBut" onclick="toggleHelpNow()">Help</button>
+			<button type="button" class="button helpBut" id="helpBut">Help</button>
 		</div>
 		
 		
@@ -235,7 +276,6 @@
 			
 			var waterNormals;
 			var addImageNow = null;
-			var toggleHelpNow = null;
 			
 			
 						
@@ -259,13 +299,19 @@
 						drop.setAttribute("id", "drop");
 						document.querySelector(".vis-custom-time").prepend(drop);
 						
+						var curDate = document.createElement("IMG");
+						curDate.setAttribute("src", "./icons/pin.svg");
+						curDate.setAttribute("id", "curDateImg");
+						document.querySelector(".vis-current-time").prepend(curDate);
+						
+						//Tool tips (Help)
 						var tip1 = document.createElement("DIV");
 						tip1.setAttribute("class", "tooltip");
 						
 						var tiptext1 = document.createElement("DIV");
 						tiptext1.setAttribute("class", "tooltiptext1");
 						tiptext1.setAttribute("id", "tooltiptext1");
-						tiptext1.innerHTML = "Move to Adjust Sea Level";
+						tiptext1.innerHTML = "Move to Adjust Sea Level Over Time";
 						
 						tip1.appendChild(tiptext1);
 						document.querySelector(".vis-custom-time").prepend(tip1);
@@ -281,19 +327,43 @@
 						tip2.appendChild(tiptext2);
 						document.querySelector(".vis-current-time").prepend(tip2);
 						
-						var curDate = document.createElement("IMG");
-						curDate.setAttribute("src", "./icons/pin.svg");
-						curDate.setAttribute("id", "curDateImg");
-						document.querySelector(".vis-current-time").prepend(curDate);
+						var tip3 = document.createElement("DIV");
+						tip3.setAttribute("class", "tooltip");
+						
+						var tiptext3 = document.createElement("DIV");
+						tiptext3.setAttribute("class", "tooltiptext3");
+						tiptext3.setAttribute("id", "tooltiptext3");
+						tiptext3.innerHTML = "Scroll Timeline to Zoom into Years, Months or Days";
+						
+						tip3.appendChild(tiptext3);
+						document.querySelector(".vis-timeline").prepend(tip3);
+
+						var tip4 = document.createElement("DIV");
+						tip4.setAttribute("class", "tooltip");
+						
+						var tiptext4 = document.createElement("DIV");
+						tiptext4.setAttribute("class", "tooltiptext4");
+						tiptext4.setAttribute("id", "tooltiptext4");
+						tiptext4.innerHTML = "Left Mouse to Pan\nScroll to Zoom";
+						
+						tip4.appendChild(tiptext4);
+						document.querySelector(".vis-timeline").prepend(tip4);						
+						
+						document.getElementById("tooltiptext1").style.visibility = "hidden";
+						document.getElementById("tooltiptext2").style.visibility = "hidden";
+						document.getElementById("tooltiptext3").style.visibility = "hidden";
+						document.getElementById("tooltiptext4").style.visibility = "hidden";
 					}
 					
 					
 					addImageNow = addImage;
 					
-					function toggleHelp(){
+					var but = document.getElementById("helpBut");
+					
+					but.addEventListener('click', function(event) {
+						
 						var x = document.getElementById("tooltiptext1");
 						var helpBut = document.getElementById("helpBut");
-						
 						if (x.style.visibility === "hidden") {
 							x.style.visibility = "visible";
 							
@@ -303,6 +373,7 @@
 							
 							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
 						}
+						
 						var y = document.getElementById("tooltiptext2");
 						if (y.style.visibility === "hidden") {
 							y.style.visibility = "visible";
@@ -312,9 +383,26 @@
 							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
 						}
 						
-					}
-					
-					toggleHelpNow = toggleHelp;
+						
+						var z = document.getElementById("tooltiptext3");
+						if (z.style.visibility === "hidden") {
+							z.style.visibility = "visible";
+							helpBut.style.background = "rgba(8, 161, 255, 0.6)";
+						} else {
+							z.style.visibility = "hidden";
+							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
+						}
+						
+						
+						var t = document.getElementById("tooltiptext4");
+						if (t.style.visibility === "hidden") {
+							t.style.visibility = "visible";
+							helpBut.style.background = "rgba(8, 161, 255, 0.6)";
+						} else {
+							t.style.visibility = "hidden";
+							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
+						}
+					}, false);
 					
 					
 				} else {
@@ -322,9 +410,11 @@
 					alert("JQuery is not loaded.");
 				}
 			}
+
 			
 			
-			
+
+					
 			loader.load( './dae/Devonport_Full_Area_Transparent.dae', function ( collada ) {
 				dae = collada.scene;
 				
