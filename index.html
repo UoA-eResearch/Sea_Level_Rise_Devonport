@@ -228,6 +228,7 @@
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/KeyFrameAnimation.js"></script>
 
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/ColladaLoader.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/STLLoader.js"></script>
 
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/Detector.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/libs/stats.min.js"></script>
@@ -277,7 +278,6 @@
 			
 			var waterNormals;
 			var addImageNow = null;
-			
 			
 						
 			var loader = new THREE.ColladaLoader();
@@ -417,6 +417,33 @@
 				
 			} );
 			
+			
+			var jsonLoader = new THREE.STLLoader();
+			var plane;
+			var mirrorMesh;
+			var mirrorMeshComplete;
+			
+			
+			jsonLoader.load(
+			// resource URL
+			'./stl/plane.stl',
+
+			// onLoad callback
+			function ( geometry ) {
+				plane = geometry;
+			},
+
+			// onProgress callback
+			function ( xhr ) {
+				console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+			},
+
+			// onError callback
+			function( err ) {
+				console.log( 'An error happened' );
+			}
+		);
+			
 				// Create a DataSet (allows two way data-binding)
 			  var items = new vis.DataSet([
 			  //{id: 2, content: 'Item 2', start: '2016-01-02', title: '<b>Bold</b>'},
@@ -469,12 +496,13 @@
 				//
 				scene = new THREE.Scene();
 				
+				dae.position.set(-400, 0, -400);
 				// Add the model
 				scene.add( dae );
 				
 				//
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 40, 35000 );
-				camera.position.set( 2000, 750, 2000 );
+				camera.position.set( 3000, 750, 3000 );
 				
 				// Controls
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -507,16 +535,31 @@
 				} );
 				
 				mirrorMesh = new THREE.Mesh(
-					new THREE.PlaneBufferGeometry( parameters.width * 10, parameters.height * 10 ),
+					plane,
 					water.material
 				);
 				
+				mirrorMesh.scale.set(1.5, 1.5, 1.5);
 				mirrorMesh.add( water );
 				mirrorMesh.rotation.x = - Math.PI * 0.5;
 				scene.add( mirrorMesh );
 				
 				//Change sea level height here
 				mirrorMesh.position.set(0, 0.0, 0);
+				
+				
+				mirrorMeshComplete = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( parameters.width * 11.97, parameters.height * 11.97),
+					water.material
+				);
+				
+				mirrorMeshComplete.add( water );
+				mirrorMeshComplete.rotation.x = - Math.PI * 0.5;
+				scene.add( mirrorMeshComplete);
+				
+				//Change sea level height here
+				mirrorMeshComplete.position.set(0, 0.0, 0);
+				mirrorMeshComplete.visible = false;
 				
 				// skybox
 				var cubeMap = new THREE.CubeTexture( [] );
@@ -609,7 +652,18 @@
 					if(strVal[2] < timeString.split('/')[2] && dataArray[pos+1][0].split('/')[2] > timeString.split('/')[2]){
 					
 						seaLevel = dataArray[pos][1];
-						mirrorMesh.position.set(0, seaLevel, 0);
+					
+						if(timeString.split('/')[2] <= 2090){
+							mirrorMesh.visible = true;
+							mirrorMeshComplete.visible = false;
+							mirrorMesh.position.set(0, seaLevel, 0);
+						}
+						else if(timeString.split('/')[2] > 2090){
+							mirrorMeshComplete.visible = true;
+							mirrorMesh.visible = false;
+							mirrorMeshComplete.position.set(0, seaLevel, 0);
+						}
+						
 						document.getElementById('sealevelChangedEvent').innerHTML = seaLevel;
 					}
 				}
