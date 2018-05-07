@@ -221,8 +221,7 @@
 		</div>
 		
 		
-		
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/build/three.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r92/build/three.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/Animation.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/AnimationHandler.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/collada/KeyFrameAnimation.js"></script>
@@ -280,8 +279,6 @@
 			var addImageNow = null;
 			
 						
-			var loader = new THREE.ColladaLoader();
-			loader.options.convertUpAxis = true;
 
 
 
@@ -345,7 +342,7 @@
 						var tiptext4 = document.createElement("DIV");
 						tiptext4.setAttribute("class", "tooltiptext4");
 						tiptext4.setAttribute("id", "tooltiptext4");
-						tiptext4.innerHTML = "Left Mouse to Pan\nScroll to Zoom";
+						tiptext4.innerHTML = "Left Mouse to Tilt\nRight Mouse to Pan\nScroll to Zoom";
 						
 						tip4.appendChild(tiptext4);
 						document.querySelector(".vis-timeline").prepend(tip4);						
@@ -402,10 +399,12 @@
 			}
 
 			
-			
+
+			var loader = new THREE.ColladaLoader();
+			loader.options.convertUpAxis = true;
 
 					
-			loader.load( './dae/Devonport_Full_Area_Transparent.dae', function ( collada ) {
+			loader.load( './dae/devonport_model.dae', function ( collada ) {
 				dae = collada.scene;
 				
 				init();
@@ -413,36 +412,21 @@
 				
 				setTimeout(function () {
 					addImageNow();
-				}, 1000);
+				}, 5000);
 				
 			} );
 			
 			
-			var jsonLoader = new THREE.STLLoader();
 			var plane;
 			var mirrorMesh;
 			var mirrorMeshComplete;
-			
-			
-			jsonLoader.load(
-			// resource URL
-			'./stl/plane.stl',
-
-			// onLoad callback
-			function ( geometry ) {
+		
+		
+			var loader = new THREE.STLLoader();
+			loader.load( './stl/plane.stl', function ( geometry ) {
 				plane = geometry;
-			},
-
-			// onProgress callback
-			function ( xhr ) {
-				console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-			},
-
-			// onError callback
-			function( err ) {
-				console.log( 'An error happened' );
-			}
-		);
+			});
+			
 			
 				// Create a DataSet (allows two way data-binding)
 			  var items = new vis.DataSet([
@@ -473,7 +457,7 @@
 
 			
 			Date.prototype.formatDDMMYYYY = function(){
-			console.log(this.getMonth());
+			
 				return (("0" + this.getDate()).slice(-2) +
 				"/" +  ("0" + (this.getMonth() + 1)).slice(-2)) + 
 				"/" +  this.getFullYear();
@@ -492,12 +476,27 @@
 				renderer.sortObjects = false;
 				renderer.autoClear = false;
 				
-				
 				//
 				scene = new THREE.Scene();
 				
-				dae.position.set(-400, 0, -400);
+				dae.position.set(-500, 0.0, -400);
+				
+				
 				// Add the model
+				dae.children[0].children[0].material.map.minFilter = THREE.NearestFilter;
+				dae.children[1].children[0].material.map.minFilter = THREE.NearestFilter;
+				dae.children[0].children[0].material.map.magFilter = THREE.LinearFilter;
+				dae.children[1].children[0].material.map.magFilter = THREE.LinearFilter;
+				
+				dae.children[0].children[0].material[0].fog = false;
+				dae.children[0].children[0].material[1].fog = false;
+				dae.children[0].children[0].material[0].map.minFilter = THREE.NearestMipMapLinearFilter;
+				dae.children[0].children[0].material[1].map.minFilter = THREE.NearestMipMapLinearFilter;
+				dae.children[0].children[0].material[0].side = THREE.DoubleSide;
+				dae.children[0].children[0].material[0].map.magFilter = THREE.LinearFilter;
+				dae.children[0].children[0].material[1].map.magFilter = THREE.LinearFilter;
+				
+				
 				scene.add( dae );
 				
 				//
@@ -506,10 +505,10 @@
 				
 				// Controls
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.enablePan = false;
-				controls.minDistance = 0.001;
+				controls.enablePan = true;
+				controls.minDistance = 0.00001;
 				controls.maxDistance = 8000.0;
-				controls.maxPolarAngle = Math.PI * 0.495;
+				controls.maxPolarAngle = Math.PI * 0.5;
 				controls.target.set( 0, 500, 0 );
 				scene.add( new THREE.AmbientLight( 0x444444 ) );
 				
@@ -530,10 +529,9 @@
 					sunDirection: light.position.clone().normalize(),
 					sunColor: 0xffffff,
 					waterColor: 0x001e0f,
-					distortionScale: 50,
+					distortionScale: 0,
 					fog: scene.fog != undefined
 				} );
-				
 				mirrorMesh = new THREE.Mesh(
 					plane,
 					water.material
