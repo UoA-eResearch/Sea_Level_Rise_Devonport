@@ -4,6 +4,7 @@
 	
 	
 	<!-- Google Analytics -->
+	<!--
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -13,6 +14,7 @@
 	ga('create', 'UA-119321893-1', 'auto');
 	ga('send', 'pageview');
 	</script>
+	-->
 	<!-- End Google Analytics -->
 
 	
@@ -229,6 +231,15 @@
 				top:calc(50% - 25px);
 				z-index:9999
 			}
+			
+			#percentLoaded {
+				visibility: visible;
+				position: absolute;
+				left:calc(50% - 1em);
+				top:calc(50% + 3em);
+				z-index:9999;
+				color: #bcd6f4;
+			}
 			.uil-ripple {
 				position:absolute;
 				left:calc(50% - 90px);
@@ -292,6 +303,7 @@
 				<div id="sealevelChangedFixed">Sea Level:  </div> m
 				<div id="sealevelChangedEvent"></div>
 			</div>
+			<div id="percentLoaded">0%</div>
 			<button type="button" class="button helpBut" id="helpBut">Help</button>
 		</div>
 		
@@ -303,6 +315,8 @@
 
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/ColladaLoader.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/STLLoader.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/MTLLoader.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/OBJLoader.js"></script>
 
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/Detector.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/libs/stats.min.js"></script>
@@ -334,6 +348,8 @@
 			
 			var progress = 0;
 			var dae;
+			var DevonportModel;
+			var TamakiModel;
 			
 			var customDate = new Date();
 			var timeline;
@@ -474,41 +490,6 @@
 					alert("JQuery is not loaded.");
 				}
 			}
-
-			var interval;
-
-			var loader = new THREE.ColladaLoader();
-			loader.options.convertUpAxis = true;
-
-					
-			loader.load( './dae/devonport_model.dae', function ( collada ) {
-				dae = collada.scene;
-				
-				interval = setInterval(checkLoadingComplete, 1000);
-				
-			} );
-			
-			
-			function checkLoadingComplete(){
-			
-				if(dae.children[1].children[0].material.map.image){
-					console.log("loaded");
-					clearInterval(interval);
-					
-					init();
-					animate();
-					
-					setTimeout(function () {
-						document.getElementById("loading").style.visibility = "hidden";
-						document.querySelector(".uil-ripple").style.visibility = "hidden";
-						addImageNow();
-					}, 1000);
-					
-				}else{
-					console.log("not loaded");
-				}
-			}
-			
 			
 			var plane;
 			var mirrorMesh;
@@ -520,6 +501,77 @@
 				plane = geometry;
 			});
 			
+			
+			var manager = new THREE.LoadingManager();
+			manager.onProgress = function ( item, loaded, total ) {
+				var percentComplete = loaded / total * 100;
+				console.log( Math.round(percentComplete, 2) + '% downloaded' );
+				
+				document.querySelector("#percentLoaded").innerHTML = Math.round(percentComplete, 2) + '%';
+				//console.log( item, loaded, total );
+			};
+			
+			manager.onLoad = function ( ) {
+
+				console.log( 'Loading complete!');
+				
+				setTimeout(function () {
+					init();
+					animate();
+				}, 1000);
+				
+				setTimeout(function () {
+					document.getElementById("loading").style.visibility = "hidden";
+					document.querySelector(".uil-ripple").style.visibility = "hidden";
+					document.querySelector("#percentLoaded").style.visibility = "hidden";
+					addImageNow();
+				}, 3000);
+			};
+			
+			var onProgress = function ( xhr ) {
+			};
+			
+			var onError = function ( xhr ) {
+			};
+				
+			var textureLoader = new THREE.TextureLoader( manager );
+			var ObjLoader = new THREE.OBJLoader( manager );
+			
+			var textureTamaki = textureLoader.load( './Tamaki/Imagery_Merged_Clipped.png' );
+			
+			ObjLoader.load( './Tamaki/untitled.obj', function ( object ) {
+				object.traverse( function ( child ) {
+					if ( child instanceof THREE.Mesh ) {
+						child.material.map = textureTamaki;
+						child.material.side = THREE.FrontSide;
+						child.material.fog = false;
+						child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+						child.material.map.magFilter = THREE.LinearFilter;
+					}
+				} );
+				TamakiModel = object;
+				
+			}, onProgress, onError );
+				
+			
+			var textureDevonport = textureLoader.load( './Devonport/conv3.png' );
+			
+			ObjLoader.load( './Devonport/Devonport_Simplified.obj', function ( object ) {
+				object.traverse( function ( child ) {
+					if ( child instanceof THREE.Mesh ) {
+						child.material.map = textureDevonport;
+						child.material.side = THREE.FrontSide;
+						child.material.fog = false;
+						child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+						child.material.map.magFilter = THREE.LinearFilter;
+					}
+				} );
+				DevonportModel = object;
+				
+			}, onProgress, onError );
+				
+				
+				
 			
 				// Create a DataSet (allows two way data-binding)
 			  var items = new vis.DataSet([
@@ -572,35 +624,24 @@
 				//
 				scene = new THREE.Scene();
 				
-				dae.position.set(-500, 0.0, -400);
+				TamakiModel.position.set(1000, 0.0, 4000);
+				DevonportModel.position.set(-400, 0.0, -400);
 				
+				scene.add( TamakiModel );
+				scene.add( DevonportModel );
 				
-				// Add the model
-				dae.children[0].children[0].material.map.minFilter = THREE.NearestFilter;
-				dae.children[1].children[0].material.map.minFilter = THREE.NearestFilter;
-				dae.children[0].children[0].material.map.magFilter = THREE.LinearFilter;
-				dae.children[1].children[0].material.map.magFilter = THREE.LinearFilter;
-				
-				dae.children[0].children[0].material[0].fog = false;
-				dae.children[0].children[0].material[1].fog = false;
-				dae.children[0].children[0].material[0].map.minFilter = THREE.NearestMipMapLinearFilter;
-				dae.children[0].children[0].material[1].map.minFilter = THREE.NearestMipMapLinearFilter;
-				dae.children[0].children[0].material[0].side = THREE.DoubleSide;
-				dae.children[0].children[0].material[0].map.magFilter = THREE.LinearFilter;
-				dae.children[0].children[0].material[1].map.magFilter = THREE.LinearFilter;
-				
-				
-				scene.add( dae );
+				TamakiModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+				DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 				
 				//
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 40, 35000 );
-				camera.position.set( 3000, 750, 3000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 90, 35000 );
+				camera.position.set( 295, 2077, 8664 );
 				
 				// Controls
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.enablePan = true;
-				controls.minDistance = 0.00001;
-				controls.maxDistance = 8000.0;
+				controls.minDistance = 0.0001;
+				controls.maxDistance = 12000.0;
 				controls.maxPolarAngle = Math.PI * 0.5;
 				controls.target.set( 0, 500, 0 );
 				scene.add( new THREE.AmbientLight( 0x444444 ) );
@@ -625,6 +666,7 @@
 					distortionScale: 0,
 					fog: scene.fog != undefined
 				} );
+				
 				mirrorMesh = new THREE.Mesh(
 					plane,
 					water.material
@@ -694,7 +736,7 @@
 				scene.add( skyBox );
 				
 				//
-				//stats = new Stats();
+				stats = new Stats();
 				//container.appendChild( stats.dom );
 				
 				//
@@ -744,12 +786,12 @@
 					
 						seaLevel = dataArray[pos][1];
 					
-						if(timeString.split('/')[2] <= 2090){
+						if(timeString.split('/')[2] <= 2110){
 							mirrorMesh.visible = true;
 							mirrorMeshComplete.visible = false;
 							mirrorMesh.position.set(0, seaLevel, 0);
 						}
-						else if(timeString.split('/')[2] > 2090){
+						else if(timeString.split('/')[2] > 2110){
 							mirrorMeshComplete.visible = true;
 							mirrorMesh.visible = false;
 							mirrorMeshComplete.position.set(0, seaLevel, 0);
@@ -775,7 +817,7 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
-				//stats.update();
+				stats.update();
 			}
 			
 			
