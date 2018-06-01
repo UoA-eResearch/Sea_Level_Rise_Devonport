@@ -539,7 +539,7 @@
 			
 			var textureTamaki = textureLoader.load( './Tamaki/Imagery_Merged_Clipped.png' );
 			
-			ObjLoader.load( './Tamaki/untitled.obj', function ( object ) {
+			ObjLoader.load( './Tamaki/Tamaki_Simplified.obj', function ( object ) {
 				object.traverse( function ( child ) {
 					if ( child instanceof THREE.Mesh ) {
 						child.material.map = textureTamaki;
