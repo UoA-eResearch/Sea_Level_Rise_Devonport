@@ -19,7 +19,7 @@
 
 	
 	
-		<title>Sea Level Rise Devonport</title>
+		<title>Sea Level Rise Auckland</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -40,6 +40,7 @@
 			}
 			.vis-custom-time{
 				background-color: #6e94ff00 !important;
+				z-index: 1000 !important;
 			}
 			.vis-current-time{
 				background-color: #ff7f6e63 !important;
@@ -51,6 +52,16 @@
 				left: -1em;
 				width: 2em;
 				height: 3em;
+				z-index: 0;
+			}
+			#storm{
+				position: fixed;
+				top: 15.5em;
+				width: 2em;
+				height: 2.5em;
+				z-index: 0;
+				margin-left: -1.5em;
+				float: left;
 			}
 			#curDateImg{
 				position: fixed;
@@ -84,10 +95,30 @@
 				position: absolute;
 				top: 3em;
 			}
+			#tideStormContainer{
+				font-weight: bold;
+				display: inline-block;
+				visibility: hidden;
+			}
+			#tideFixed{
+				font-weight: bold;
+				float: left;
+				margin-left: 2em;
+			}
+			#tideChangedEvent{
+				font-weight: bold;
+				float: left;
+				margin-left: 0.5em;
+			}
+			#stormFixed{
+				font-weight: bold;
+				float: left;
+				margin-left: 2em;
+			}
 			#title{
 				padding-left: 0.4em;
-				padding-top: 0.3em;
-				font-size: 2.4em;
+				padding-top: 0.6em;
+				font-size: x-large;
 				position: absolute;
 				top: 0.1em;
 			}
@@ -100,14 +131,14 @@
 				top: 9em;
 				position: fixed;
 				display: inline-block;
-				border-bottom: 1px dotted black;
+				
 			}
 			.tooltiptext1{
 				width: 10em;
-				background-color: black;
-				color: #fff;
+				background-color: rgba(213, 221, 246, 1);
+				border: 2px solid rgba(154, 199, 255, 0.6);
+				color: black;
 				text-align: center;
-				border-radius: 6px;
 				padding: 5px 0;
 				position: absolute;
 				z-index: 1;
@@ -118,10 +149,10 @@
 			}
 			.tooltiptext2{
 				width: 10em;
-				background-color: black;
-				color: #fff;
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
 				text-align: center;
-				border-radius: 6px;
+				border: 2px solid rgba(154, 199, 255, 0.6);
 				padding: 5px 0;
 				position: absolute;
 				z-index: 1;
@@ -132,29 +163,43 @@
 			}
 			.tooltiptext3{
 				width: 15em;
-				background-color: black;
-				color: #fff;
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
 				text-align: center;
-				border-radius: 6px;
+				border: 2px solid rgba(154, 199, 255, 0.6);
 				padding: 5px 0;
 				position: absolute;
 				z-index: 1;
 				bottom: -2.5em;
-				left: 100em;
+				left: 50em;
 				margin-left: -60px;
 				padding: 0.5em;
 			}
 			.tooltiptext4{
 				width: 10em;
-				background-color: black;
-				color: #fff;
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
 				text-align: left;
-				border-radius: 6px;
+				border: 2px solid rgba(154, 199, 255, 0.6);
 				padding: 5px 0;
 				position: absolute;
 				z-index: 1;
 				bottom: -30em;
 				left: 80em;
+				margin-left: -60px;
+				padding: 0.5em;
+			}
+			.tooltiptext5{
+				width: 15em;
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
+				text-align: center;
+				border: 2px solid rgba(154, 199, 255, 0.6);
+				padding: 5px 0;
+				position: absolute;
+				z-index: 1;
+				bottom: -5em;
+				left: 50em;
 				margin-left: -60px;
 				padding: 0.5em;
 			}
@@ -166,7 +211,7 @@
 				margin-top: -5px;
 				border-width: 5px;
 				border-style: solid;
-				border-color: transparent black transparent transparent;
+				border-color: transparent rgba(154, 199, 255, 0.6) transparent transparent;
 			}
 			.tooltip .tooltiptext2::after{
 				content: "";
@@ -176,7 +221,7 @@
 				margin-left: -5px;
 				border-width: 5px;
 				border-style: solid;
-				border-color: black transparent transparent transparent;
+				border-color: rgba(154, 199, 255, 0.6) transparent transparent transparent;
 			}
 			.tooltip .tooltiptext3::after{
 				content: "";
@@ -186,7 +231,7 @@
 				margin-left: -5px;
 				border-width: 5px;
 				border-style: solid;
-				border-color: black transparent transparent transparent;
+				border-color: rgba(154, 199, 255, 0.6) transparent transparent transparent;
 			}
 			.tooltip .tooltiptext4::after{
 				content: "";
@@ -196,9 +241,20 @@
 				margin-left: -5px;
 				border-width: 5px;
 				border-style: solid;
-				border-color: black transparent transparent transparent;
+				border-color: rgba(154, 199, 255, 0.6) transparent transparent transparent;
+			}
+			.tooltip .tooltiptext5::after{
+				content: "";
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				margin-left: -5px;
+				border-width: 5px;
+				border-style: solid;
+				border-color: rgba(154, 199, 255, 0.6) transparent transparent transparent;
 			}
 			.button {
+				width: 10em;
 				padding: 10px 25px;
 				text-align: center;
 				text-decoration: none;
@@ -209,21 +265,38 @@
 				transition-duration: 0.4s;
 				cursor: pointer;
 			}
-			.helpBut {
-				background-color: rgba(0, 0, 0, 1);
-				color: white;
+			
+			.helpBut{
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
 				border: 2px solid rgba(154, 199, 255, 0.6);
 				position: absolute;
-				right: 1.5em;
+				right: 1em;
 				top: 1.5em;
 				border-radius: 4px;
 			}
-			.helpBut:hover {
+			
+			.stormSurgeBut{
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
+				border: 2px solid rgba(154, 199, 255, 0.6);
+				position: absolute;
+				right: 1em;
+				top: 5em;
+				border-radius: 4px;
+			}
+			.helpBut:hover{
 				background-color: rgba(154, 199, 255, 0.6);
 				border: 3px solid rgba(154, 199, 255, 0.6);
 			}
-			
-			
+			.stormSurgeBut:hover{
+				background-color: rgba(154, 199, 255, 0.6);
+				border: 3px solid rgba(154, 199, 255, 0.6);
+			}
+			.selected {
+				background-color: rgba(154, 199, 255, 1);
+				color: black;
+			}
 			#loading {
 				visibility: visible;
 				position:absolute;
@@ -231,7 +304,6 @@
 				top:calc(50% - 25px);
 				z-index:9999
 			}
-			
 			#percentLoaded {
 				visibility: visible;
 				position: absolute;
@@ -246,6 +318,10 @@
 				top:calc(50% - 90px);
 				opacity:.5;
 				z-index:999
+			}
+			.vis-itemset{
+				z-index: 0;
+				margin-top: 1em !important;
 			}
 
 			.ld-l {opacity:0;animation: ld-in 3s 0.0s ease infinite;}
@@ -296,15 +372,21 @@
 		<rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><g> <animate attributeName="opacity" dur="4s" repeatCount="indefinite" begin="0s" keyTimes="0;0.33;1" values="1;1;0"></animate><circle cx="50" cy="50" r="40" stroke="#eeeeee" fill="none" stroke-width="2" stroke-linecap="round"><animate attributeName="r" dur="4s" repeatCount="indefinite" begin="0s" keyTimes="0;0.33;1" values="0;22;44"></animate></circle></g><g><animate attributeName="opacity" dur="4s" repeatCount="indefinite" begin="2s" keyTimes="0;0.33;1" values="1;1;0"></animate><circle cx="50" cy="50" r="40" stroke="#eeeeee" fill="none" stroke-width="2" stroke-linecap="round"><animate attributeName="r" dur="4s" repeatCount="indefinite" begin="2s" keyTimes="0;0.33;1" values="0;22;44"></animate></circle></g></svg>
 
 		<div id="container"></div>
-			<div id="title">Sea Level Rise Devonport</div>
+			<div id="title">Sea Level Rise Auckland City, Devonport and Tamaki Drive</div>
 			<div id="dateContainer"></br>
 				<div id="datechangeEventFixed">Date:  </div>
 				<div id="datechangeEvent"></div>
-				<div id="sealevelChangedFixed">Sea Level:  </div> m
+				<div id="sealevelChangedFixed">Sea Level:  </div>
 				<div id="sealevelChangedEvent"></div>
+				<div id="tideStormContainer">
+					<div id="tideFixed">Tide:  </div>
+					<div id="tideChangedEvent"></div>
+					<div id="stormFixed">Storm Surge: 0.45m</div>
+				</div>
 			</div>
 			<div id="percentLoaded">0%</div>
-			<button type="button" class="button helpBut" id="helpBut">Help</button>
+			<button type="button" class="button helpBut selected" id="helpBut">Hide Help</button>
+			<button type="button" class="button stormSurgeBut selected" id="stormSurgeBut">Show Storms</button>
 		</div>
 		
 		
@@ -345,6 +427,7 @@
 			}
 			var container, stats, contTimeline;
 			var camera, scene, renderer, controls;
+			var firstStormClick = true;
 			
 			var progress = 0;
 			var dae;
@@ -354,7 +437,9 @@
 			var customDate = new Date();
 			var timeline;
 			var fileData;
+			var tideData;
 			var dataArray = [];
+			var tideArray = [];
 			
 			var parameters = {
 				width: 2000,
@@ -368,6 +453,7 @@
 			
 			var waterNormals;
 			var addImageNow = null;
+			var stormSurgesEnabled = false;
 			
 			var img = document.querySelector('img')	
 
@@ -380,6 +466,10 @@
 					
 					$.get('Data.txt', function(data) {
 						fileData = data;
+					}, 'text');
+					
+					$.get('SS_Tide.txt', function(data) {
+						tideData = data;
 					}, 'text');
 					
 					
@@ -438,12 +528,24 @@
 						tiptext4.innerHTML = "Left Mouse to Tilt\nRight Mouse to Pan\nScroll to Zoom";
 						
 						tip4.appendChild(tiptext4);
-						document.querySelector(".vis-timeline").prepend(tip4);						
+						document.querySelector(".vis-timeline").prepend(tip4);
+
+						var tip5 = document.createElement("DIV");
+						tip5.setAttribute("class", "tooltip");
+						
+						var tiptext5 = document.createElement("DIV");
+						tiptext5.setAttribute("class", "tooltiptext5");
+						tiptext5.setAttribute("id", "tooltiptext5");
+						tiptext5.innerHTML = "Click on storm symbol to zoom in to the storm event";
+						
+						tip5.appendChild(tiptext5);
+						document.querySelector(".vis-timeline").prepend(tip5);						
 						
 						document.getElementById("tooltiptext1").style.visibility = "hidden";
 						document.getElementById("tooltiptext2").style.visibility = "hidden";
 						document.getElementById("tooltiptext3").style.visibility = "hidden";
 						document.getElementById("tooltiptext4").style.visibility = "hidden";
+						document.getElementById("tooltiptext5").style.visibility = "hidden";
 						
 						document.getElementById("helpBut").click();
 					}
@@ -451,39 +553,69 @@
 					
 					addImageNow = addImage;
 					
-					var but = document.getElementById("helpBut");
+					var helpBut = document.getElementById("helpBut");
 					
-					but.addEventListener('click', function(event) {
+					helpBut.addEventListener('click', function(event) {
 						
-						var x = document.getElementById("tooltiptext1");
-						var y = document.getElementById("tooltiptext2");
-						var z = document.getElementById("tooltiptext3");
-						var t = document.getElementById("tooltiptext4");
-						
-						var helpBut = document.getElementById("helpBut");
-						
-						if (x.style.visibility === "hidden") {
-							x.style.visibility = "visible";
-							y.style.visibility = "visible";
-							z.style.visibility = "visible";
-							t.style.visibility = "visible";
-							
-							helpBut.style.background = "rgba(0, 0, 0, 1)";
-							helpBut.style.color = "white";
+						if (helpBut.innerHTML == "Show Help") {
+							$(this).removeClass('selected');
 							helpBut.innerHTML = "Hide Help";
-						} else {
-							x.style.visibility = "hidden";
-							y.style.visibility = "hidden";
-							z.style.visibility = "hidden";
-							t.style.visibility = "hidden";
 							
-							helpBut.style.background = "rgba(154, 199, 255, 0.6)";
-							helpBut.style.color = "black";
+							toggleTooltips();
+						}
+						else {
+							$(this).addClass('selected');
 							helpBut.innerHTML = "Show Help";
+							
+							toggleTooltips();
 						}
 						
 					}, false);
 					
+					
+					var stormSurgeButton = document.getElementById("stormSurgeBut");
+					
+					stormSurgeButton.addEventListener('click', function(event) {
+						var stormBut = document.querySelector(".stormSurgeBut");
+						var dateString = timeline.getCustomTime(1).formatDDMMYYYY();
+						
+						if (stormSurgesEnabled) {
+							stormSurgesEnabled = false;
+							$(this).addClass('selected');
+							stormBut.innerHTML = "Show Storms";
+							
+							setTimeStringAtDate(dateString);
+							setSeaLevelAtDate(dateString);
+							
+							for(var pos = 0; pos < dataArray.length; pos ++){
+								var strVal = dataArray[pos][0].split('/');
+								var str = strVal[2] + '-' + strVal[1] + '-' + strVal[0];
+								stormSurges.remove({id: pos});
+							}
+							
+							toggleTooltips();
+							document.querySelector("#tideStormContainer").style.visibility = "hidden";
+							
+						} else {
+							stormSurgesEnabled = true;
+							$(this).removeClass('selected');
+							stormBut.innerHTML = "Hide Storms";
+							
+							setTimeStringAtDate(dateString);
+							setSeaLevelAtDate(dateString);
+							
+							for(var pos = 0; pos < dataArray.length; pos ++){
+								var strVal = dataArray[pos][0].split('/');
+								var strStart = strVal[2] + '-' + strVal[1] + '-' + strVal[0] + ' 00:00:00';
+								var strEnd = strVal[2] + '-' + strVal[1] + '-' + strVal[0] + ' 12:00:00';
+								stormSurges.add({id: pos, content: '<div style="margin-left: 1em;">Storm surge during 12h tide</div><img id="storm" src="../icons/stormy.png">', start: strStart, end: strEnd});
+							}
+							
+							toggleTooltips();
+							document.querySelector("#tideStormContainer").style.visibility = "visible";
+						}
+						
+					}, false);
 					
 				} else {
 					// jQuery is not loaded
@@ -491,9 +623,43 @@
 				}
 			}
 			
+			function toggleTooltips(){
+			
+				var helpBut = document.getElementById("helpBut");
+				var stormSurgeButton = document.getElementById("stormSurgeBut");
+				
+				var x = document.getElementById("tooltiptext1");
+				var y = document.getElementById("tooltiptext2");
+				var z = document.getElementById("tooltiptext3");
+				var t = document.getElementById("tooltiptext4");
+				var s = document.getElementById("tooltiptext5");
+				
+				if(helpBut.innerHTML == "Hide Help" && stormSurgeButton.innerHTML == "Show Storms"){
+					x.style.visibility = "visible";
+					y.style.visibility = "visible";
+					z.style.visibility = "visible";
+					t.style.visibility = "visible";
+					s.style.visibility = "hidden";
+				}else if(helpBut.innerHTML == "Hide Help" && stormSurgeButton.innerHTML == "Hide Storms"){
+					x.style.visibility = "hidden";
+					y.style.visibility = "hidden";
+					z.style.visibility = "hidden";
+					t.style.visibility = "hidden";
+					s.style.visibility = "visible";
+				}else{
+					x.style.visibility = "hidden";
+					y.style.visibility = "hidden";
+					z.style.visibility = "hidden";
+					t.style.visibility = "hidden";
+					s.style.visibility = "hidden";
+				}
+				
+			}
+			
 			var plane;
 			var mirrorMesh;
 			var mirrorMeshComplete;
+			var timeline
 		
 		
 			var loader = new THREE.STLLoader();
@@ -508,7 +674,6 @@
 				console.log( Math.round(percentComplete, 2) + '% downloaded' );
 				
 				document.querySelector("#percentLoaded").innerHTML = Math.round(percentComplete, 2) + '%';
-				//console.log( item, loaded, total );
 			};
 			
 			manager.onLoad = function ( ) {
@@ -526,6 +691,7 @@
 					document.querySelector("#percentLoaded").style.visibility = "hidden";
 					addImageNow();
 				}, 3000);
+				
 			};
 			
 			var onProgress = function ( xhr ) {
@@ -570,19 +736,9 @@
 				
 			}, onProgress, onError );
 				
-				
-				
 			
-				// Create a DataSet (allows two way data-binding)
-			  var items = new vis.DataSet([
-			  //{id: 2, content: 'Item 2', start: '2016-01-02', title: '<b>Bold</b>'},
-				//{id: 1, content: 'item 1', start: '2013-04-20'},
-				//{id: 2, content: 'item 2', start: '2013-04-14'},
-				//{id: 3, content: 'item 3', start: '2013-04-18'},
-				//{id: 4, content: 'item 4', start: '2013-04-16', end: '2013-04-19'},
-				//{id: 5, content: 'item 5', start: '2013-04-25'},
-				//{id: 6, content: 'item 6', start: '2013-04-27'}
-			  ]);
+			// Create a DataSet (allows two way data-binding)
+			var stormSurges = new vis.DataSet([]);
 			  
 			// Configuration for the Timeline
 			var options = {
@@ -599,8 +755,6 @@
 				}
 			};
 			
-
-			
 			Date.prototype.formatDDMMYYYY = function(){
 			
 				return (("0" + this.getDate()).slice(-2) +
@@ -610,7 +764,6 @@
 			
 			function init() {
 				container = document.getElementById( 'container' );
-				
 				
 				//
 				renderer = new THREE.WebGLRenderer();
@@ -749,16 +902,20 @@
 					dataArray.push([content[0], content[1]]);
 				}
 				
-
+				var tideFileContent = tideData.split('\n');
+				
+				for(var pos = 0; pos < tideFileContent.length; pos ++){
+					var content = tideFileContent[pos].split(' ');
+					tideArray.push([content[0], content[1]]);
+				}
+				
 								
 				// Create a Timeline
-				//timeline = new vis.Timeline(container, items, options);
-				
-				var timeline = new vis.Timeline(container, items, options);
+				timeline = new vis.Timeline(container, stormSurges, options);
 				
 				// Set first time bar
 				customDate = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
-				timeline.addCustomTime(customDate, 't1');
+				timeline.addCustomTime(customDate, 1);
 				
 				var timeString = customDate.formatDDMMYYYY();
 				
@@ -766,25 +923,83 @@
 				setSeaLevelAtDate(timeString);
 				
 				timeline.on('timechange', function (properties) {
+				
 					var timeString = properties.time.formatDDMMYYYY();
-					
 					setTimeStringAtDate(timeString);
 					setSeaLevelAtDate(timeString);
 				});
 				
 				timeline.setWindow('2000-01-01', '2150-12-31');
 				
+				timeline.on('mouseDown', function (properties) {
+					console.log(properties.item);
+					if(properties.item != null){
+						var id = properties.item;
+						var date = new Date(stormSurges.get(id).start);
+						
+						var dateBefore = new Date(date.getTime());
+						dateBefore.setDate(date.getDate() - 1);
+						
+						timeline.setWindow({
+							start: dateBefore.setHours(20),
+							end:   date.setHours(16),
+							animation: {
+								duration: 2,
+								easingFunction: "easeInQuad"
+							}
+						});
+						
+						timeline.setCustomTime(date.setHours(0), 1);
+						
+						var dateString = '01/01/' + dataArray[id][0].split("/")[2];
+						
+						setTimeStringAtDate(dateString);
+						setSeaLevelAtDate(dateString);
+						
+						var helpBut = document.querySelector(".helpBut");
+						if(helpBut.innerHTML == "Hide Help"){
+							helpBut.click();
+						}
+						setTimeout(animate(), 500);
+					}
+					
+				});
 				
 			}
+			
 			
 			function setSeaLevelAtDate(timeString){
 				var seaLevel;
 				for(var pos = 0; pos < dataArray.length; pos ++){
 					var strVal = dataArray[pos][0].split('/');
+					var timeOnTimeline = timeString.split('/');
+					var stormSurge = 0.0;
+					var tide = 0.0;
 					
-					if(strVal[2] < timeString.split('/')[2] && dataArray[pos+1][0].split('/')[2] > timeString.split('/')[2]){
-					
+					//console.log(timeString.split('/')[2] + " < " + strVal[2]);
+					if(parseInt(timeOnTimeline[2]) < parseInt(strVal[2])){
+						break;
+					}
+					else{
 						seaLevel = dataArray[pos][1];
+						
+						if(stormSurgesEnabled){
+							
+							if(timeOnTimeline[0] == "01"){
+								var hour = timeline.getCustomTime(1).getHours();
+								if(hour >= 0 && hour <=12){
+									tide = tideArray[hour][1];
+									stormSurge = 0.45;
+								}
+							}
+							
+							var calc = (parseFloat(seaLevel) + parseFloat(stormSurge) + parseFloat(tide)).toFixed(3);
+							seaLevel = calc.toString();
+							
+							var tideText = document.querySelector("#tideChangedEvent");
+							tide = tide + 'm';
+							tideText.innerHTML = tide;
+						}
 					
 						if(timeString.split('/')[2] <= 2110){
 							mirrorMesh.visible = true;
@@ -797,7 +1012,10 @@
 							mirrorMeshComplete.position.set(0, seaLevel, 0);
 						}
 						
+						seaLevel = seaLevel + 'm';
+						
 						document.getElementById('sealevelChangedEvent').innerHTML = seaLevel;
+						
 					}
 				}
 			}
@@ -813,8 +1031,8 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 			
-			
 			function animate() {
+			//console.log("now");
 				requestAnimationFrame( animate );
 				render();
 				stats.update();
