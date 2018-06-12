@@ -254,8 +254,8 @@
 				border-color: rgba(154, 199, 255, 0.6) transparent transparent transparent;
 			}
 			.button {
-				width: 10em;
-				padding: 10px 25px;
+				width: 8em;
+				padding: 5px 0px 5px 0px;
 				text-align: center;
 				text-decoration: none;
 				display: inline-block;
@@ -272,7 +272,7 @@
 				border: 2px solid rgba(154, 199, 255, 0.6);
 				position: absolute;
 				right: 1em;
-				top: 1.5em;
+				top: 0.5em;
 				border-radius: 4px;
 			}
 			
@@ -282,21 +282,40 @@
 				border: 2px solid rgba(154, 199, 255, 0.6);
 				position: absolute;
 				right: 1em;
-				top: 5em;
+				top: 3.5em;
 				border-radius: 4px;
 			}
+			
+			.zoomOutBut{
+				background-color: rgba(213, 221, 246, 1);
+				color: black;
+				border: 2px solid rgba(154, 199, 255, 0.6);
+				position: absolute;
+				right: 1em;
+				top: 6.5em;
+				border-radius: 4px;
+			}
+			
 			.helpBut:hover{
 				background-color: rgba(154, 199, 255, 0.6);
 				border: 3px solid rgba(154, 199, 255, 0.6);
 			}
+			
 			.stormSurgeBut:hover{
 				background-color: rgba(154, 199, 255, 0.6);
 				border: 3px solid rgba(154, 199, 255, 0.6);
 			}
+			
+			.zoomOutBut:hover{
+				background-color: rgba(154, 199, 255, 0.6);
+				border: 3px solid rgba(154, 199, 255, 0.6);
+			}
+			
 			.selected {
 				background-color: rgba(154, 199, 255, 1);
 				color: black;
 			}
+			
 			#loading {
 				visibility: visible;
 				position:absolute;
@@ -387,6 +406,7 @@
 			<div id="percentLoaded">0%</div>
 			<button type="button" class="button helpBut selected" id="helpBut">Hide Help</button>
 			<button type="button" class="button stormSurgeBut selected" id="stormSurgeBut">Show Storms</button>
+			<button type="button" class="button zoomOutBut selected" id="zoomOutBut">Zoom Out</button>
 		</div>
 		
 		
@@ -618,6 +638,16 @@
 							toggleTooltips();
 							document.querySelector("#tideStormContainer").style.visibility = "visible";
 						}
+						
+					}, false);
+					
+					
+					//Zoom Out button, resets timeline visible window to full width
+					var zoomOutBut = document.getElementById("zoomOutBut");
+					
+					zoomOutBut.addEventListener('click', function(event) {
+						
+						timeline.setWindow('2000-01-01', '2150-12-31');
 						
 					}, false);
 					
