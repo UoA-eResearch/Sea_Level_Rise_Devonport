@@ -4,7 +4,7 @@
 	
 	
 	<!-- Google Analytics -->
-	
+	<!--
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -14,7 +14,7 @@
 	ga('create', 'UA-119321893-1', 'auto');
 	ga('send', 'pageview');
 	</script>
-	
+	-->
 	<!-- End Google Analytics -->
 
 	
@@ -425,21 +425,23 @@
 				Detector.addGetWebGLMessage();
 				document.getElementById( 'container' ).innerHTML = "";
 			}
-			var container, stats, contTimeline;
+			var container, stats, timeline;
 			var camera, scene, renderer, controls;
-			var firstStormClick = true;
+			var customDate = new Date();
+			
+			var waterNormals;
+			var addImageNow = null;
+			var stormSurgesEnabled = false;
 			
 			var progress = 0;
-			var dae;
 			var DevonportModel;
 			var TamakiModel;
 			
-			var customDate = new Date();
-			var timeline;
-			var fileData;
-			var tideData;
+			var fileData, tideData;
 			var dataArray = [];
 			var tideArray = [];
+			
+			var plane, mirrorMesh, mirrorMeshComplete;
 			
 			var parameters = {
 				width: 2000,
@@ -451,30 +453,25 @@
 				filterparam: 1
 			};
 			
-			var waterNormals;
-			var addImageNow = null;
-			var stormSurgesEnabled = false;
-			
-			var img = document.querySelector('img')	
-
-
-
-			
 			window.onload = function() {
 				if (window.jQuery) {  
 					// jQuery is loaded
 					
+					//Read in sea level from data file
 					$.get('Data.txt', function(data) {
 						fileData = data;
 					}, 'text');
 					
+					//Read in 12h tide cycle data from file
 					$.get('SS_Tide.txt', function(data) {
 						tideData = data;
 					}, 'text');
 					
 					
+					//Create tooltip and icon elements
 					function addImage(){
 					
+						//Icons for timeline
 					    var drop = document.createElement("IMG");
 						drop.setAttribute("src", "./icons/drop.svg");
 						drop.setAttribute("id", "drop");
@@ -485,7 +482,8 @@
 						curDate.setAttribute("id", "curDateImg");
 						document.querySelector(".vis-current-time").prepend(curDate);
 						
-						//Tool tips (Help)
+						//Tool tips
+						//Tool tip 1
 						var tip1 = document.createElement("DIV");
 						tip1.setAttribute("class", "tooltip");
 						
@@ -497,6 +495,7 @@
 						tip1.appendChild(tiptext1);
 						document.querySelector(".vis-custom-time").prepend(tip1);
 						
+						//Tool tip 2
 						var tip2 = document.createElement("DIV");
 						tip2.setAttribute("class", "tooltip");
 						
@@ -508,6 +507,7 @@
 						tip2.appendChild(tiptext2);
 						document.querySelector(".vis-current-time").prepend(tip2);
 						
+						//Tool tip 3
 						var tip3 = document.createElement("DIV");
 						tip3.setAttribute("class", "tooltip");
 						
@@ -519,6 +519,7 @@
 						tip3.appendChild(tiptext3);
 						document.querySelector(".vis-timeline").prepend(tip3);
 
+						//Tool tip 4
 						var tip4 = document.createElement("DIV");
 						tip4.setAttribute("class", "tooltip");
 						
@@ -530,6 +531,7 @@
 						tip4.appendChild(tiptext4);
 						document.querySelector(".vis-timeline").prepend(tip4);
 
+						//Tool tip 5
 						var tip5 = document.createElement("DIV");
 						tip5.setAttribute("class", "tooltip");
 						
@@ -547,12 +549,14 @@
 						document.getElementById("tooltiptext4").style.visibility = "hidden";
 						document.getElementById("tooltiptext5").style.visibility = "hidden";
 						
+						
 						document.getElementById("helpBut").click();
 					}
 					
 					
 					addImageNow = addImage;
 					
+					//Help button, turns tooltips on and off
 					var helpBut = document.getElementById("helpBut");
 					
 					helpBut.addEventListener('click', function(event) {
@@ -572,7 +576,7 @@
 						
 					}, false);
 					
-					
+					//Storm surge button, turns on tide cycles including storm surge
 					var stormSurgeButton = document.getElementById("stormSurgeBut");
 					
 					stormSurgeButton.addEventListener('click', function(event) {
@@ -623,6 +627,7 @@
 				}
 			}
 			
+			// Toggle help text tooltips
 			function toggleTooltips(){
 			
 				var helpBut = document.getElementById("helpBut");
@@ -635,18 +640,21 @@
 				var s = document.getElementById("tooltiptext5");
 				
 				if(helpBut.innerHTML == "Hide Help" && stormSurgeButton.innerHTML == "Show Storms"){
+				// If help enabled and storms not showing, make general help tooltips visible
 					x.style.visibility = "visible";
 					y.style.visibility = "visible";
 					z.style.visibility = "visible";
 					t.style.visibility = "visible";
 					s.style.visibility = "hidden";
 				}else if(helpBut.innerHTML == "Hide Help" && stormSurgeButton.innerHTML == "Hide Storms"){
+				// If help enabled and storms showing, hide general help tooltips and only show storm help tooltips to avoid cluttering
 					x.style.visibility = "hidden";
 					y.style.visibility = "hidden";
 					z.style.visibility = "hidden";
 					t.style.visibility = "hidden";
 					s.style.visibility = "visible";
 				}else{
+				// If help disabled, hide all help tooltips
 					x.style.visibility = "hidden";
 					y.style.visibility = "hidden";
 					z.style.visibility = "hidden";
@@ -656,19 +664,15 @@
 				
 			}
 			
-			var plane;
-			var mirrorMesh;
-			var mirrorMeshComplete;
-			var timeline
-		
-		
+			//Load plane with hole to avoid flooding of area that shouldn't be flooded right away
 			var loader = new THREE.STLLoader();
 			loader.load( './stl/plane.stl', function ( geometry ) {
 				plane = geometry;
 			});
 			
-			
 			var manager = new THREE.LoadingManager();
+			
+			//Show percent loaded to user - loading models
 			manager.onProgress = function ( item, loaded, total ) {
 				var percentComplete = loaded / total * 100;
 				console.log( Math.round(percentComplete, 2) + '% downloaded' );
@@ -676,8 +680,9 @@
 				document.querySelector("#percentLoaded").innerHTML = Math.round(percentComplete, 2) + '%';
 			};
 			
+			
+			//Loading models complete
 			manager.onLoad = function ( ) {
-
 				console.log( 'Loading complete!');
 				
 				setTimeout(function () {
@@ -699,7 +704,8 @@
 			
 			var onError = function ( xhr ) {
 			};
-				
+			
+			//Load Tamaki and Devonport models with textures
 			var textureLoader = new THREE.TextureLoader( manager );
 			var ObjLoader = new THREE.OBJLoader( manager );
 			
@@ -737,7 +743,7 @@
 			}, onProgress, onError );
 				
 			
-			// Create a DataSet (allows two way data-binding)
+			// Create a DataSet of storm events for the timeline
 			var stormSurges = new vis.DataSet([]);
 			  
 			// Configuration for the Timeline
@@ -755,6 +761,7 @@
 				}
 			};
 			
+			//Date format conversion
 			Date.prototype.formatDDMMYYYY = function(){
 			
 				return (("0" + this.getDate()).slice(-2) +
@@ -913,7 +920,7 @@
 				// Create a Timeline
 				timeline = new vis.Timeline(container, stormSurges, options);
 				
-				// Set first time bar
+				// Set custom time bar (movable drop)
 				customDate = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
 				timeline.addCustomTime(customDate, 1);
 				
@@ -922,6 +929,7 @@
 				setTimeStringAtDate(timeString);
 				setSeaLevelAtDate(timeString);
 				
+				// When custom time bar is being moved, update sea level according to new date on timeline
 				timeline.on('timechange', function (properties) {
 				
 					var timeString = properties.time.formatDDMMYYYY();
@@ -929,10 +937,12 @@
 					setSeaLevelAtDate(timeString);
 				});
 				
+				// Set visible window of timeline
 				timeline.setWindow('2000-01-01', '2150-12-31');
 				
+				// When click on timeline, zoom into the window only if the a storm item was clicked (properties.item != null) rather than empty space on timeline
 				timeline.on('mouseDown', function (properties) {
-					console.log(properties.item);
+					
 					if(properties.item != null){
 						var id = properties.item;
 						var date = new Date(stormSurges.get(id).start);
@@ -970,21 +980,29 @@
 			
 			function setSeaLevelAtDate(timeString){
 				var seaLevel;
+				
+				// Compare date on timeline with dates/years from data file and set sea level at the corresponding value
 				for(var pos = 0; pos < dataArray.length; pos ++){
 					var strVal = dataArray[pos][0].split('/');
 					var timeOnTimeline = timeString.split('/');
 					var stormSurge = 0.0;
 					var tide = 0.0;
 					
+					// If the timeline date is less than the date from the data file, ignore and continue with loop
+					
 					//console.log(timeString.split('/')[2] + " < " + strVal[2]);
 					if(parseInt(timeOnTimeline[2]) < parseInt(strVal[2])){
 						break;
 					}
 					else{
+					// Otherwise, set sea level according to position of date in data file
 						seaLevel = dataArray[pos][1];
 						
+						
+						// If storm surges enabled, add the values for storm surge and tidal cycle to the UI text
 						if(stormSurgesEnabled){
 							
+							// For every first day of each decade calculate sea level value containing tide and storm surge
 							if(timeOnTimeline[0] == "01"){
 								var hour = timeline.getCustomTime(1).getHours();
 								if(hour >= 0 && hour <=12){
@@ -1000,7 +1018,8 @@
 							tide = tide + 'm';
 							tideText.innerHTML = tide;
 						}
-					
+						
+						// Area flooding on devonport model should only happen when date bigger than 2110, otherwise use ocean plane with hole to avoid flooding on that area
 						if(timeString.split('/')[2] <= 2110){
 							mirrorMesh.visible = true;
 							mirrorMeshComplete.visible = false;
@@ -1020,6 +1039,7 @@
 				}
 			}
 			
+			
 			function setTimeStringAtDate(timeString){
 				document.getElementById('datechangeEvent').innerHTML = timeString;
 			}
@@ -1032,7 +1052,6 @@
 			}
 			
 			function animate() {
-			//console.log("now");
 				requestAnimationFrame( animate );
 				render();
 				stats.update();
