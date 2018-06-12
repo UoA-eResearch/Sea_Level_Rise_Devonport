@@ -260,7 +260,7 @@
 				text-decoration: none;
 				display: inline-block;
 				font-size: 16px;
-				margin: 4px 2px;
+				margin-right: 2.5em;
 				-webkit-transition-duration: 0.4s; /* Safari */
 				transition-duration: 0.4s;
 				cursor: pointer;
@@ -296,6 +296,19 @@
 				border-radius: 4px;
 			}
 			
+			.menuBut {
+				background:url(./icons/menu.png) no-repeat;
+				background-color: rgba(213, 221, 246, 0);
+				background-size: contain;
+				position: absolute;
+				border: 2px solid rgba(154, 199, 255, 0);
+				right: 0em;
+				top: 0.5em;
+				margin-right: 0.5em;
+				width: 2em;
+				height: 1.9em;
+			}
+			
 			.helpBut:hover{
 				background-color: rgba(154, 199, 255, 0.6);
 				border: 3px solid rgba(154, 199, 255, 0.6);
@@ -307,6 +320,11 @@
 			}
 			
 			.zoomOutBut:hover{
+				background-color: rgba(154, 199, 255, 0.6);
+				border: 3px solid rgba(154, 199, 255, 0.6);
+			}
+			
+			.menuBut:hover{
 				background-color: rgba(154, 199, 255, 0.6);
 				border: 3px solid rgba(154, 199, 255, 0.6);
 			}
@@ -404,9 +422,12 @@
 				</div>
 			</div>
 			<div id="percentLoaded">0%</div>
-			<button type="button" class="button helpBut selected" id="helpBut">Hide Help</button>
-			<button type="button" class="button stormSurgeBut selected" id="stormSurgeBut">Show Storms</button>
-			<button type="button" class="button zoomOutBut selected" id="zoomOutBut">Zoom Out</button>
+			<button type="button" class="button menuBut" id="menuBut"></button>
+			<div id="buttons" style="visibility: hidden;">
+				<button type="button" class="button helpBut selected" id="helpBut">Hide Help</button>
+				<button type="button" class="button stormSurgeBut selected" id="stormSurgeBut">Show Storms</button>
+				<button type="button" class="button zoomOutBut selected" id="zoomOutBut">Zoom Out</button>
+			</div>
 		</div>
 		
 		
@@ -650,6 +671,23 @@
 						timeline.setWindow('2000-01-01', '2150-12-31');
 						
 					}, false);
+					
+					
+					//Menu button
+					var menuBut = document.getElementById("menuBut");
+					
+					menuBut.addEventListener('click', function(event) {
+						
+						var buttons = document.getElementById("buttons");
+						if(buttons.style.visibility == "visible"){
+							buttons.style.visibility = "hidden";
+						}else{
+							buttons.style.visibility = "visible";
+						}
+						
+					}, false);
+					
+					
 					
 				} else {
 					// jQuery is not loaded
