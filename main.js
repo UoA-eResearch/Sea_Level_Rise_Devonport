@@ -13,7 +13,8 @@ var doingTour = false;
 
 var progress = 0;
 var DevonportModel;
-var TamakiModel;
+var TamakiModelLeft;
+var TamakiModelRight;
 
 var fileData, tideData;
 var dataArray = [];
@@ -77,36 +78,6 @@ window.onload = function() {
 		 
 		$("body").tooltip({ selector: '[data-toggle=tooltip]' });
 		
-		
-		/*
-		
-		//Zoom Out button, resets timeline visible window to full width
-		var zoomOutBut = document.getElementById("zoomOutBut");
-		
-		zoomOutBut.addEventListener('click', function(event) {
-			
-			//timeline.setWindow('2000-01-01', '2150-12-31');
-			
-			tour(1);
-			
-		}, false);
-		
-		
-		//Menu button
-		var menuBut = document.getElementById("menuBut");
-		
-		menuBut.addEventListener('click', function(event) {
-			
-			var buttons = document.getElementById("buttons");
-			if(buttons.style.visibility == "visible"){
-				buttons.style.visibility = "hidden";
-			}else{
-				buttons.style.visibility = "visible";
-			}
-			
-		}, false);
-		
-		*/
 		
 		//Load plane with hole to avoid flooding of area that shouldn't be flooded right away
 		var loader = new THREE.STLLoader();
@@ -201,19 +172,37 @@ window.onload = function() {
 		var textureLoader = new THREE.TextureLoader( manager );
 		var ObjLoader = new THREE.OBJLoader( manager );
 
-		var textureTamaki = textureLoader.load( './Tamaki/Imagery_Merged_Clipped.png' );
+		var textureTamakiLeft = textureLoader.load( './Tamaki_Left/Imagery_Merged_Clipped.png' );
 
-		ObjLoader.load( './Tamaki/Tamaki_Simplified.obj', function ( object ) {
+		ObjLoader.load( './Tamaki_Left/Tamaki_Left_Half.obj', function ( object ) {
 			object.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
-					child.material.map = textureTamaki;
+					child.material.map = textureTamakiLeft;
 					child.material.side = THREE.FrontSide;
 					child.material.fog = false;
 					child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
 					child.material.map.magFilter = THREE.LinearFilter;
 				}
 			} );
-			TamakiModel = object;
+			TamakiModelLeft = object;
+			
+		}, onProgress, onError );
+		
+		
+
+		var textureTamakiRight = textureLoader.load( './Tamaki_Right/Imagery_Merged_Clipped.png' );
+
+		ObjLoader.load( './Tamaki_Right/Tamaki_Right_Half.obj', function ( object ) {
+			object.traverse( function ( child ) {
+				if ( child instanceof THREE.Mesh ) {
+					child.material.map = textureTamakiRight;
+					child.material.side = THREE.FrontSide;
+					child.material.fog = false;
+					child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+					child.material.map.magFilter = THREE.LinearFilter;
+				}
+			} );
+			TamakiModelRight = object;
 			
 		}, onProgress, onError );
 			
@@ -259,13 +248,16 @@ function init() {
 	//
 	scene = new THREE.Scene();
 	
-	TamakiModel.position.set(1000, 0.0, 4000);
+	TamakiModelLeft.position.set(1000, 0.0, 4000);
+	TamakiModelRight.position.set(1000, 0.0, 4000);
 	DevonportModel.position.set(-400, 0.0, -400);
 	
-	scene.add( TamakiModel );
+	scene.add( TamakiModelLeft );
+	scene.add( TamakiModelRight );
 	scene.add( DevonportModel );
 	
-	TamakiModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+	TamakiModelLeft.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+	TamakiModelRight.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 	DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 	
 	//
@@ -372,7 +364,7 @@ function init() {
 	
 	//
 	stats = new Stats();
-	//container.appendChild( stats.dom );
+	container.appendChild( stats.dom );
 	
 	//
 	window.addEventListener( 'resize', onWindowResize, false );
