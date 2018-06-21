@@ -236,6 +236,46 @@ body {
 	border: 1.5px solid rgba(0, 80, 178, 1);
 }
 
+@media screen and (max-width: 800px) {
+	
+    #info {
+        top: 4em;
+    }
+	
+	#toggleStorms {
+		top: 8em;
+	}
+	
+	#tideStormContainer {
+		display: block;
+	}
+	
+	#tideFixed{
+		margin-left: 0em;
+	}
+	
+	#tideChangedEvent{
+		margin-left: 0.5em;
+	}
+	
+	#dateContainer {
+		font-size: 12px;
+		padding: 0.5em;
+	}
+	
+	#title {
+		font-size: 14px;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	
+    #info {
+        top: 8em;
+		right: 10em;
+    }
+}
+
 .ld-l {opacity:0;animation: ld-in 3s 0.0s ease infinite;}
 .ld-o {opacity:0;animation: ld-in 3s 0.1s ease infinite;}
 .ld-a {opacity:0;animation: ld-in 3s 0.2s ease infinite;}
