@@ -388,7 +388,6 @@ function init() {
 	timeline = new vis.Timeline(container, stormSurges, options);
 	
 	// Set custom time bar (movable drop)
-	customDate = new Date(customDate.getFullYear(), customDate.getMonth()+1, customDate.getDate());
 	timeline.addCustomTime(customDate, 1);
 	
 	var timeString = customDate.formatDDMMYYYY();
