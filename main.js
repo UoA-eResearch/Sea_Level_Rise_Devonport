@@ -13,14 +13,13 @@ var doingTour = false;
 
 var progress = 0;
 var DevonportModel;
-var TamakiModelLeft;
-var TamakiModelRight;
+var TamakiModel;
 
 var fileData, tideData;
 var dataArray = [];
 var tideArray = [];
 
-var plane, mirrorMesh, mirrorMeshComplete;
+var plane, mirrorMesh, mirrorMeshComplete, mirrorMeshHole;
 
 var animateTimelineInterval;
 var animateTimelineDate;
@@ -40,8 +39,8 @@ var stormSurges = new vis.DataSet([]);
   
 // Configuration for the Timeline
 var options = {
-	min: new Date(2000,1,01),
-	max: new Date(2150,31,12),
+	min: new Date(1999,1,01),
+	max: new Date(2155,31,12),
 	minHeight: '10em',
 	width: '100%',
 	dataAttributes: 'all',
@@ -169,47 +168,12 @@ window.onload = function() {
 		};
 
 		//Load Tamaki and Devonport models with textures
-		var textureLoader = new THREE.TextureLoader( manager );
-		var ObjLoader = new THREE.OBJLoader( manager );
-
-		var textureTamakiLeft = textureLoader.load( './Tamaki_Left/Imagery_Merged_Clipped.png' );
-
-		ObjLoader.load( './Tamaki_Left/Tamaki_Left_Half.obj', function ( object ) {
-			object.traverse( function ( child ) {
-				if ( child instanceof THREE.Mesh ) {
-					child.material.map = textureTamakiLeft;
-					child.material.side = THREE.FrontSide;
-					child.material.fog = false;
-					child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
-					child.material.map.magFilter = THREE.LinearFilter;
-				}
-			} );
-			TamakiModelLeft = object;
-			
-		}, onProgress, onError );
+		var textureLoader = new THREE.TextureLoader(manager);
+		var ObjLoader = new THREE.OBJLoader(manager);
 		
-		
-
-		var textureTamakiRight = textureLoader.load( './Tamaki_Right/Imagery_Merged_Clipped.png' );
-
-		ObjLoader.load( './Tamaki_Right/Tamaki_Right_Half.obj', function ( object ) {
-			object.traverse( function ( child ) {
-				if ( child instanceof THREE.Mesh ) {
-					child.material.map = textureTamakiRight;
-					child.material.side = THREE.FrontSide;
-					child.material.fog = false;
-					child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
-					child.material.map.magFilter = THREE.LinearFilter;
-				}
-			} );
-			TamakiModelRight = object;
-			
-		}, onProgress, onError );
-			
-
 		var textureDevonport = textureLoader.load( './Devonport/conv3.png' );
 
-		ObjLoader.load( './Devonport/Devonport_Simplified.obj', function ( object ) {
+		ObjLoader.load( './Devonport/Devonport.obj', function ( object ) {
 			object.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
 					child.material.map = textureDevonport;
@@ -248,17 +212,12 @@ function init() {
 	//
 	scene = new THREE.Scene();
 	
-	TamakiModelLeft.position.set(1000, 0.0, 4000);
-	TamakiModelRight.position.set(1000, 0.0, 4000);
 	DevonportModel.position.set(-400, 0.0, -400);
 	
-	scene.add( TamakiModelLeft );
-	scene.add( TamakiModelRight );
+	DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+	
 	scene.add( DevonportModel );
 	
-	TamakiModelLeft.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-	TamakiModelRight.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-	DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 	
 	//
 	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 90, 35000 );
@@ -294,7 +253,7 @@ function init() {
 		fog: scene.fog != undefined
 	} );
 	
-	mirrorMesh = new THREE.Mesh(
+	mirrorMesh= new THREE.Mesh(
 		plane,
 		water.material
 	);
@@ -302,10 +261,12 @@ function init() {
 	mirrorMesh.scale.set(1.5, 1.5, 1.5);
 	mirrorMesh.add( water );
 	mirrorMesh.rotation.x = - Math.PI * 0.5;
+	
 	scene.add( mirrorMesh );
 	
 	//Change sea level height here
 	mirrorMesh.position.set(0, 0.0, 0);
+	
 	
 	
 	mirrorMeshComplete = new THREE.Mesh(
@@ -404,7 +365,7 @@ function init() {
 	});
 	
 	// Set visible window of timeline
-	timeline.setWindow('2000-01-01', '2150-12-31');
+	timeline.setWindow('1999-01-01', '2155-12-31');
 	
 	// When click on timeline, zoom into the window only if the a storm item was clicked (properties.item != null) rather than empty space on timeline
 	timeline.on('mouseDown', function (properties) {
@@ -415,9 +376,35 @@ function init() {
 			zoomIntoStorm(id);
 		}
 		
-	})
+	});
 	
+	loadTamaki();
+}
+
+function loadTamaki() {
+	//Load Tamaki and Devonport models with textures
+	var textureLoader = new THREE.TextureLoader();
+	var ObjLoader = new THREE.OBJLoader();
 	
+	var textureTamaki = textureLoader.load( './Tamaki/Imagery_Merged_Clipped.png' );
+
+	ObjLoader.load( './Tamaki/Tamaki.obj', function ( object ) {
+		object.traverse( function ( child ) {
+			if ( child instanceof THREE.Mesh ) {
+				child.material.map = textureTamaki;
+				child.material.side = THREE.FrontSide;
+				child.material.fog = false;
+				child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+				child.material.map.magFilter = THREE.LinearFilter;
+			}
+		} );
+		TamakiModel = object;
+		
+		TamakiModel.position.set(1000, 0.0, 4000);
+		TamakiModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+		
+		$("#customCheck1").attr("disabled", false);
+	});
 }
 
 function zoomIntoStorm(id){
@@ -497,13 +484,13 @@ function tour(step){
 			$('#cancelTour').off();
 			
 			// Set everything to start position
-			timeline.setWindow('2000-01-01', '2150-12-31');
+			timeline.setWindow('1999-01-01', '2155-12-31');
 			if(stormSurgesEnabled){
 				$('#toggleStorms').click();
 			}
 			
 			var start = new Date(2000,00,01);
-			var end = new Date(2150,31,12);
+			var end = new Date(2155,31,12);
 			animateTimelineDate = new Date(start);
 			if(!animateTimelineInterval){
 				animateTimelineInterval = setInterval(animateTimeline, 300, start, end, 2, 0);
@@ -531,7 +518,7 @@ function tour(step){
 				animateTimelineInterval = false;
 				
 				// Set everything to start position
-				timeline.setWindow('2000-01-01', '2150-12-31');
+				timeline.setWindow('1999-01-01', '2155-12-31');
 				if(stormSurgesEnabled){
 					$('#toggleStorms').click();
 				}
@@ -564,7 +551,7 @@ function tour(step){
 				$('.vis-timeline').css('z-index', 0);
 				
 				// Set everything to start position
-				timeline.setWindow('2000-01-01', '2150-12-31');
+				timeline.setWindow('1999-01-01', '2155-12-31');
 				if(stormSurgesEnabled){
 					$('#toggleStorms').click();
 				}
@@ -607,7 +594,7 @@ function tour(step){
 				animateTimelineInterval = false;
 				
 				// Set everything to start position
-				timeline.setWindow('2000-01-01', '2150-12-31');
+				timeline.setWindow('1999-01-01', '2155-12-31');
 				if(stormSurgesEnabled){
 					$('#toggleStorms').click();
 				}
@@ -639,7 +626,7 @@ function tour(step){
 				clearInterval(intervFunc);
 				
 				// Set everything to start position
-				timeline.setWindow('2000-01-01', '2150-12-31');
+				timeline.setWindow('1999-01-01', '2155-12-31');
 				if(stormSurgesEnabled){
 					$('#toggleStorms').click();
 				}
@@ -670,7 +657,7 @@ function tour(step){
 				$('.vis-timeline').css('z-index', 0);
 				
 				// Set everything to start position
-				timeline.setWindow('2000-01-01', '2150-12-31');
+				timeline.setWindow('1999-01-01', '2155-12-31');
 				if(stormSurgesEnabled){
 					$('#toggleStorms').click();
 				}
@@ -749,22 +736,24 @@ function setSeaLevelAtDate(timeString){
 				tideText.innerHTML = tide;
 			}
 			
+			var devonportChecked = $(".checkDev")[0].checked;
+			
 			// Area flooding on devonport model should only happen when date bigger than 2110, otherwise use ocean plane with hole to avoid flooding on that area
-			if(timeString.split('/')[2] <= 2110){
+			if(timeString.split('/')[2] <= 2110 && devonportChecked && !stormSurgesEnabled){
 				mirrorMesh.visible = true;
 				mirrorMeshComplete.visible = false;
-				mirrorMesh.position.set(0, seaLevel, 0);
 			}
-			else if(timeString.split('/')[2] > 2110){
+			else if(timeString.split('/')[2] > 2110 || !devonportChecked || stormSurgesEnabled){
 				mirrorMeshComplete.visible = true;
 				mirrorMesh.visible = false;
-				mirrorMeshComplete.position.set(0, seaLevel, 0);
 			}
+			
+			mirrorMeshComplete.position.set(0, seaLevel, 0);
+			mirrorMesh.position.set(0, seaLevel, 0);
 			
 			seaLevel = seaLevel + 'm';
 			
 			document.getElementById('sealevelChangedEvent').innerHTML = seaLevel;
-			//animate();
 		}
 	}
 }
@@ -779,6 +768,29 @@ function zoomOut() {
 
 function setTimeStringAtDate(timeString){
 	document.getElementById('datechangeEvent').innerHTML = timeString;
+}
+
+function toggleCity(checkBox){
+	if(checkBox.checked){
+		scene.add( TamakiModel );
+	}
+	else{
+		scene.remove( TamakiModel );
+	}
+}
+
+function toggleDevonport(checkBox){
+
+	if(checkBox.checked){
+		scene.add( DevonportModel );
+	}
+	else{
+		scene.remove( DevonportModel );
+	}
+	
+	var dateString = timeline.getCustomTime(1).formatDDMMYYYY();
+	setTimeStringAtDate(dateString);
+	setSeaLevelAtDate(dateString);
 }
 
 
