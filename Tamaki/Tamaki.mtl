@@ -1,7 +1,7 @@
-# Blender MTL File: 'untitled.blend'
+# Blender MTL File: 'Tamaki_Transp.blend'
 # Material Count: 1
 
-newmtl rastMat.001
+newmtl rastMat
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000

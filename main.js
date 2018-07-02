@@ -201,13 +201,15 @@ function init() {
 	container = document.getElementById( 'container' );
 	
 	//
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer( { antialias: false } );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	
+	//renderer.vr.enabled = true;
+	//document.body.appendChild( WEBVR.createButton( renderer ) );
+	
 	container.appendChild( renderer.domElement );
 	
-	renderer.sortObjects = false;
-	renderer.autoClear = false;
 	
 	//
 	scene = new THREE.Scene();
@@ -226,10 +228,10 @@ function init() {
 	// Controls
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	controls.enablePan = true;
-	controls.minDistance = 0.0001;
-	controls.maxDistance = 12000.0;
-	controls.maxPolarAngle = Math.PI * 0.5;
-	controls.target.set( 0, 500, 0 );
+	controls.minDistance = 0.1;
+	controls.maxDistance = 14000.0;
+	controls.maxPolarAngle = Math.PI * 0.45;
+	controls.target.set( 0, 0, 0 );
 	scene.add( new THREE.AmbientLight( 0x444444 ) );
 	
 	//
@@ -325,7 +327,7 @@ function init() {
 	
 	//
 	stats = new Stats();
-	//container.appendChild( stats.dom );
+	container.appendChild( stats.dom );
 	
 	//
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -400,7 +402,7 @@ function loadTamaki() {
 		} );
 		TamakiModel = object;
 		
-		TamakiModel.position.set(1000, 0.0, 4000);
+		TamakiModel.position.set(-400, 0.0, -800);
 		TamakiModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 		
 		$("#customCheck1").attr("disabled", false);
@@ -793,7 +795,6 @@ function toggleDevonport(checkBox){
 	setSeaLevelAtDate(dateString);
 }
 
-
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
@@ -806,10 +807,10 @@ function animate() {
 	stats.update();
 }
 
-
 function render() {
 	water.material.uniforms.time.value += 0.7 / 60.0;
 	controls.update();
 	water.render();
+	
 	renderer.render( scene, camera );
 }
