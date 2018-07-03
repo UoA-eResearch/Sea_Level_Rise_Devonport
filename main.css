@@ -234,6 +234,10 @@ body {
 	top: 10em;
 }
 
+.tour {
+	padding: 0.5em;
+}
+
 .custom-control-label{
 	display: inline-block;
 }

@@ -333,7 +333,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 			}
 
 			v.multiplyScalar( distance );
-			console.log(v);
 			panOffset.add( v );
 
 		};

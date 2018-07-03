@@ -61,9 +61,30 @@ Date.prototype.formatDDMMYYYY = function(){
 }
 
 
+function checkBrowserCompatibility(){
+
+    // Firefox 1.0+
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+
+    // Chrome 1+
+    var isChrome = !!window.chrome && !!window.chrome.webstore;
+	
+	if(!isChrome && !isFirefox){
+		
+		alert("This visualisation runs best on Chrome. Your browser will not display all features.");
+	}
+	if(isFirefox){
+		
+		alert("This visualisation runs best on Chrome. Try it out.");
+	}
+}
+
+
 window.onload = function() {
 	if (window.jQuery) {  
 		// jQuery is loaded
+		
+		checkBrowserCompatibility();
 		
 		//Read in sea level from data file
 		$.get('Data.txt', function(data) {
@@ -181,6 +202,10 @@ window.onload = function() {
 					child.material.fog = false;
 					child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
 					child.material.map.magFilter = THREE.LinearFilter;
+					child.material.emissiveIntensity = 0;
+					child.material.reflectivity = 0;
+					child.material.refractionRatio = 0;
+					child.material.shininess = 0;
 				}
 			} );
 			DevonportModel = object;
@@ -208,28 +233,28 @@ function init() {
 	//renderer.vr.enabled = true;
 	//document.body.appendChild( WEBVR.createButton( renderer ) );
 	
-	container.appendChild( renderer.domElement );
 	
+	container.appendChild( renderer.domElement );
+	DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 	
 	//
 	scene = new THREE.Scene();
 	
 	DevonportModel.position.set(-400, 0.0, -400);
 	
-	DevonportModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-	
 	scene.add( DevonportModel );
 	
-	
 	//
-	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 90, 35000 );
+	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 500, 35000 );
 	camera.position.set( 295, 2077, 8664 );
 	
 	// Controls
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	controls.enablePan = true;
-	controls.minDistance = 0.1;
+	controls.minDistance = 500;
 	controls.maxDistance = 14000.0;
+	controls.minZoom = 500;
+	controls.maxZoom = 14000.0;
 	controls.maxPolarAngle = Math.PI * 0.45;
 	controls.target.set( 0, 0, 0 );
 	scene.add( new THREE.AmbientLight( 0x444444 ) );
@@ -254,6 +279,8 @@ function init() {
 		distortionScale: 0,
 		fog: scene.fog != undefined
 	} );
+	
+	water.mirrorCamera.near = 1;
 	
 	mirrorMesh= new THREE.Mesh(
 		plane,
@@ -328,7 +355,7 @@ function init() {
 	//
 	stats = new Stats();
 	container.appendChild( stats.dom );
-	stats.dom.style.visibility = "hidden";
+	//stats.dom.style.visibility = "hidden";
 	
 	//
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -399,6 +426,10 @@ function loadTamaki() {
 				child.material.fog = false;
 				child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
 				child.material.map.magFilter = THREE.LinearFilter;
+				child.material.emissiveIntensity = 0;
+				child.material.reflectivity = 0;
+				child.material.refractionRatio = 0;
+				child.material.shininess = 0;
 			}
 		} );
 		TamakiModel = object;
@@ -453,6 +484,9 @@ $("#toggleStorms").on( "click", function(event) {
 			stormSurges.remove({id: pos});
 		}
 		$("#tideStormContainer").css({ "visibility": "hidden"});
+		
+		// Set everything to start position
+		timeline.setWindow('1999-01-01', '2155-12-31');
 		
 	} else {
 		stormSurgesEnabled = true;
@@ -646,7 +680,8 @@ function tour(step){
 			$('#modTitle').text("Moving the City Model");
 			$('#modBody').html("<div>The city is a 3D model and can be moved to adjust the view.<br><b>The mouse pointer has to be outside the timeline area for this.</b><br><br><img src='./icons/mouse_left.png' style='width: 1.5em;'> Left mouse to tilt.<br><br><img src='./icons/mouse_right.png' style='width: 1.5em;'> Right mouse to pan.<br><br><img src='./icons/mouse_scroll.svg' style='width: 1.5em;'> Scroll to zoom.</div>");
 			
-			var turn = setInterval(turnModel, 50);
+			controls.autoRotate = true;
+			controls.autoRotateSpeed = 1.0;
 			
 			$('#continueTour').on( "click", function() {
 				$('#cancelTour').click();
@@ -654,7 +689,7 @@ function tour(step){
 			});
 			
 			$('#cancelTour').on( "click", function() {
-				clearInterval(turn);
+				controls.autoRotate = false;
 				$('#toggleStorms').removeClass('highlight');
 				$('#toggleStorms').css('z-index', 0);
 				$('.vis-timeline').css('z-index', 0);
@@ -673,9 +708,6 @@ function tour(step){
 	
 }
 
-function turnModel() {
-	camera.position.set(camera.position.x - 10, camera.position.y, camera.position.z - 10);
-}
 
 function animateTimeline(start, end, stepYear, stepHours) {
 	
@@ -812,6 +844,15 @@ function render() {
 	water.material.uniforms.time.value += 0.7 / 60.0;
 	controls.update();
 	water.render();
+	
+	if(camera.position.y <= 500){
+		camera.near = 10.0;
+		camera.updateProjectionMatrix ();
+	}
+	else if(camera.position.y > 500){
+		camera.near = 500.0;
+		camera.updateProjectionMatrix ();
+	}
 	
 	renderer.render( scene, camera );
 }
