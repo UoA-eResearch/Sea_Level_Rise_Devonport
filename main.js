@@ -355,7 +355,7 @@ function init() {
 	//
 	stats = new Stats();
 	container.appendChild( stats.dom );
-	//stats.dom.style.visibility = "hidden";
+	stats.dom.style.visibility = "hidden";
 	
 	//
 	window.addEventListener( 'resize', onWindowResize, false );
