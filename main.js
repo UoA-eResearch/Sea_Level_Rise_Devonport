@@ -416,7 +416,7 @@ function loadTamaki() {
 	var textureLoader = new THREE.TextureLoader();
 	var ObjLoader = new THREE.OBJLoader();
 	
-	var textureTamaki = textureLoader.load( './Tamaki/Imagery_Merged_Clipped.png' );
+	var textureTamaki = textureLoader.load( './Tamaki/Img.png' );
 
 	ObjLoader.load( './Tamaki/Tamaki.obj', function ( object ) {
 		object.traverse( function ( child ) {
