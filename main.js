@@ -84,7 +84,7 @@ window.onload = function() {
 	if (window.jQuery) {  
 		// jQuery is loaded
 		
-		checkBrowserCompatibility();
+		//checkBrowserCompatibility();
 		
 		//Read in sea level from data file
 		$.get('Data.txt', function(data) {
@@ -839,9 +839,13 @@ function animate() {
 	render();
 	stats.update();
 }
+var time = 0;
+var clock = new THREE.Clock();
 
 function render() {
-	water.material.uniforms.time.value += 0.7 / 60.0;
+	time += clock.getDelta();
+	water.material.uniforms.time.value = time / 3.0;
+	
 	controls.update();
 	water.render();
 	
