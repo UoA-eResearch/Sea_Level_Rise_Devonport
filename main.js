@@ -86,6 +86,8 @@ window.onload = function() {
 		
 		//checkBrowserCompatibility();
 		
+		$('#modDisclaimer').modal('show');
+		
 		//Read in sea level from data file
 		$.get('Data.txt', function(data) {
 			fileData = data;

@@ -110,8 +110,8 @@
 			
 		</div>
 		
-		<!-- Modal -->
-		<div class="modal" id="mod" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false" data-backdrop="static">
+		<!-- Modal for tour -->
+		<div class="modal" id="mod" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false" data-backdrop="static">
 		  <div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 			  <div class="modal-header">
@@ -123,6 +123,27 @@
 			  <div class="modal-footer">
 				<button type="button" class="button tour" id="cancelTour" data-dismiss="modal">Cancel Tour</button>
 				<button type="button" class="button tour" id="continueTour">Continue Tour</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		
+		
+		<!-- Modal for Disclaimer -->
+		<div class="modal" id="modDisclaimer" tabindex="1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false" data-backdrop="static">
+		  <div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title">DISCLAIMER</h5>
+			  </div>
+			  <div class="modal-body" id="modBody">
+				This is just a visualization using a simple bathtub approach. It should be used to understand, not to predict.
+				More work and validation is needed to evaluate rigorously the flooding associated with each of the different contributors over time.
+				At present, the interaction of the hydrodynamic components with the topo-bathymetry of the area is not accounted for in the visualization.
+				To make the visualization experience easy for the user, only king tides and a large value of storm surge are considered.
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="button tour" id="cancelDisclaimer" data-dismiss="modal">Okay</button>
 			  </div>
 			</div>
 		  </div>
