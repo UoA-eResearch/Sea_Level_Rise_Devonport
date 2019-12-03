@@ -14,6 +14,7 @@ var doingTour = false;
 var progress = 0;
 var DevonportModel;
 var TamakiModel;
+var RangitotoModel;
 
 var fileData, tideData;
 var dataArray = [];
@@ -241,13 +242,18 @@ function init() {
 	
 	//
 	scene = new THREE.Scene();
+	//fogColor = new THREE.Color(0xbdb4a1);
+ 
+	//scene.background = fogColor;
+	//scene.fog = new THREE.Fog(fogColor, 14000, 30000);
+
 	
 	DevonportModel.position.set(-400, 0.0, -400);
 	
 	scene.add( DevonportModel );
 	
 	//
-	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 500, 35000 );
+	camera = new THREE.PerspectiveCamera( 48, window.innerWidth / window.innerHeight, 500, 35000 );
 	camera.position.set( 295, 2077, 8664 );
 	
 	// Controls
@@ -257,7 +263,7 @@ function init() {
 	controls.maxDistance = 14000.0;
 	controls.minZoom = 500;
 	controls.maxZoom = 14000.0;
-	controls.maxPolarAngle = Math.PI * 0.45;
+	controls.maxPolarAngle = Math.PI * 0.485;
 	controls.target.set( 0, 0, 0 );
 	scene.add( new THREE.AmbientLight( 0x444444 ) );
 	
@@ -348,7 +354,7 @@ function init() {
 	} );
 	
 	var skyBox = new THREE.Mesh(
-		new THREE.BoxGeometry( 30000, 30000, 30000 ),
+		new THREE.BoxGeometry( 100000, 100000, 100000 ),
 		skyBoxMaterial
 	);
 	
@@ -410,7 +416,8 @@ function init() {
 		
 	});
 	
-	loadTamaki();
+    loadTamaki();
+    loadRangitoto();
 }
 
 function loadTamaki() {
@@ -441,6 +448,38 @@ function loadTamaki() {
 		
 		$("#customCheck1").attr("disabled", false);
 	});
+}
+
+
+function loadRangitoto() {
+    //Load Rangitoto models with textures
+    var textureLoader = new THREE.TextureLoader();
+    var ObjLoader = new THREE.OBJLoader();
+
+    var textureRangitoto = textureLoader.load('./Rangitoto/RangitotoImagery.png');
+
+    ObjLoader.load('./Rangitoto/Rangitoto.obj', function (object) {
+        object.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material.map = textureRangitoto;
+                child.material.side = THREE.FrontSide;
+                child.material.fog = false;
+                child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+                child.material.map.magFilter = THREE.LinearFilter;
+                child.material.emissiveIntensity = 0;
+                child.material.reflectivity = 0;
+                child.material.refractionRatio = 0;
+                child.material.shininess = 0;
+            }
+        });
+        RangitotoModel = object;
+
+        RangitotoModel.position.set(7800, 0, -4800);
+        RangitotoModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+		
+        scene.add( RangitotoModel );
+
+    });
 }
 
 function zoomIntoStorm(id){
