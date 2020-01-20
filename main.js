@@ -300,7 +300,7 @@ function init() {
 		water.material
 	);
 	
-	mirrorMesh.scale.set(1.5, 1.5, 1.5);
+	mirrorMesh.scale.set(2.5, 2.5, 2.5);
 	mirrorMesh.add( water );
 	mirrorMesh.rotation.x = - Math.PI * 0.5;
 	
