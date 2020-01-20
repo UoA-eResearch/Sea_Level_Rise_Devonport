@@ -7,14 +7,17 @@ var camera, scene, renderer, controls;
 var customDate = new Date();
 
 var waterNormals;
+var water;
 var addImageNow = null;
 var stormSurgesEnabled = false;
 var doingTour = false;
 
 var progress = 0;
 var DevonportModel;
+var DevonportModel2;
 var TamakiModel;
 var RangitotoModel;
+var BridgeModel;
 
 var fileData, tideData;
 var dataArray = [];
@@ -248,13 +251,15 @@ function init() {
 	//scene.fog = new THREE.Fog(fogColor, 14000, 30000);
 
 	
-	DevonportModel.position.set(-400, 0.0, -400);
+	//DevonportModel.position.set(-500, 0.0, -800);
+    DevonportModel.position.set(-445, 0.0, -725);
 	
 	scene.add( DevonportModel );
 	
 	//
 	camera = new THREE.PerspectiveCamera( 48, window.innerWidth / window.innerHeight, 500, 35000 );
-	camera.position.set( 295, 2077, 8664 );
+	camera.position.set( -4342.72, 906, 4382.68 );
+	
 	
 	// Controls
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -286,8 +291,8 @@ function init() {
 		waterColor: 0x001e0f,
 		distortionScale: 0,
 		fog: scene.fog != undefined
-	} );
-	
+    });
+    
 	water.mirrorCamera.near = 1;
 	
 	mirrorMesh= new THREE.Mesh(
@@ -416,12 +421,14 @@ function init() {
 		
 	});
 	
-    loadTamaki();
+	loadDevonport2();
+    loadCity();
     loadRangitoto();
+    loadBridge();
 }
 
-function loadTamaki() {
-	//Load Tamaki and Devonport models with textures
+function loadCity() {
+	//Load City
 	var textureLoader = new THREE.TextureLoader();
 	var ObjLoader = new THREE.OBJLoader();
 	
@@ -477,9 +484,63 @@ function loadRangitoto() {
         RangitotoModel.position.set(7800, 0, -4800);
         RangitotoModel.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
 		
-        scene.add( RangitotoModel );
-
+        //scene.add( RangitotoModel );
+		$("#customCheck3").attr("disabled", false);
     });
+}
+
+
+
+function loadDevonport2() {
+    var TextureLoader = new THREE.TextureLoader();
+    var OBJLoader = new THREE.OBJLoader();
+
+    var textureDevonport2 = TextureLoader.load('./Devonport2Model/Imagery.png');
+
+    OBJLoader.load('./Devonport2Model/Devonport2.obj', function (object) {
+        object.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material.map = textureDevonport2;
+                child.material.side = THREE.FrontSide;
+                child.material.fog = false;
+                child.material.map.minFilter = THREE.NearestMipMapNearestFilter;
+                child.material.map.magFilter = THREE.LinearFilter;
+                child.material.emissiveIntensity = 0;
+                child.material.reflectivity = 0;
+                child.material.refractionRatio = 0;
+                child.material.shininess = 0;
+            }
+        });
+        DevonportModel2 = object;
+
+        DevonportModel2.position.set(-3560, 0.0, -1470);
+        DevonportModel2.children[0].material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+        scene.add(DevonportModel2);
+    });
+}
+
+
+
+function loadBridge() {
+	 
+	var TextureLoader = new THREE.TextureLoader();
+    var OBJLoader = new THREE.OBJLoader();
+
+    var BridgeModel;
+    var texturewhole = TextureLoader.load('./Bridge/Steelplt.jpg');
+    OBJLoader.load('./Bridge/Bridge.obj', function (object) {
+        object.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material.map = texturewhole;
+                child.material.side = THREE.FrontSide;
+            }
+        });
+        BridgeModel = object;
+        BridgeModel.position.set(-3600, 0, 500);
+        scene.add(BridgeModel);
+    });
+	
 }
 
 function zoomIntoStorm(id){
@@ -859,14 +920,28 @@ function toggleDevonport(checkBox){
 
 	if(checkBox.checked){
 		scene.add( DevonportModel );
+		scene.add( DevonportModel2 );
 	}
 	else{
 		scene.remove( DevonportModel );
+		scene.remove( DevonportModel2 );
 	}
 	
 	var dateString = timeline.getCustomTime(1).formatDDMMYYYY();
 	setTimeStringAtDate(dateString);
 	setSeaLevelAtDate(dateString);
+}
+
+
+function toggleRangitoto(checkBox){
+
+	if(checkBox.checked){
+		scene.add( RangitotoModel );
+	}
+	else{
+		scene.remove( RangitotoModel );
+	}
+	
 }
 
 function onWindowResize() {
@@ -898,6 +973,5 @@ function render() {
 		camera.near = 500.0;
 		camera.updateProjectionMatrix ();
 	}
-	
 	renderer.render( scene, camera );
 }

@@ -7,7 +7,7 @@ body {
 }
 .vis-timeline{
 	position: fixed !important;
-	top: 12em !important;
+	top: 8.5em !important;
 	background-color: rgba(154, 199, 255, 0.6) !important;
 }
 .vis-text{
@@ -174,7 +174,7 @@ body {
 	text-align: center;
 	position: fixed;
 	z-index: 0;
-	top: 23em;
+	top: 19.5em;
 	right: 1em;
 }
 
@@ -182,7 +182,7 @@ body {
 	width: 3.3em;
 	position: fixed;
 	z-index: 0;
-	top: 12.5em;
+	top: 9em;
 	padding: 0.4em;
 }
 
@@ -232,11 +232,18 @@ body {
 }
 
 #checkCity {
-	top: 8em;
+	top: 0.6em;
+	right: 11em;
 }
 
 #checkDev {
-	top: 10em;
+	top: 2.8em;
+	right: 11em;
+}
+
+#checkRangitoto {
+	top: 5em;
+	right: 11em;
 }
 
 .tour {
@@ -249,7 +256,7 @@ body {
 
 .custom-control {
 	position: fixed;
-	width: 9em;
+	width: 10em;
 	z-index: 0;
 	right: 0em;
 }
@@ -299,24 +306,50 @@ body {
 	}
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 600px) {
 	
     #info {
-        top: 8em;
+        top: 7.5em;
 		left: 0.5em;
     }
 	
+	.modelInstr{
+		visibility: hidden;
+	}
+	
 	#toggleStorms {
-		top: 8em;
+		top: 7.5em;
 		left: 9em;
 	}
 	
 	#checkCity {
+		right: 3em;
 		width: 5em;
 	}
 
 	#checkDev {
+		right: 3em;
 		width: 5em;
+	}
+
+	#checkRangitoto {
+		right: 3em;
+		width: 5em;
+	}
+	
+	.vis-timeline{
+		top: 11em !important;
+		min-height: 1em !important;
+		height: 7.5em !important;
+	}
+	
+	.menuTimeline {
+		width: 2.4em;
+		top: 7.5em;
+	}
+	
+	#storm{
+		top: 12em;
 	}
 }
 
