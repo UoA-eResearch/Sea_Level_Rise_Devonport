@@ -5,6 +5,4 @@ Sea level rise simulation and interactive webpage. Explore sea level changes acc
 ### Preview:
 ![Preview1](https://github.com/UoA-eResearch/Sea_Level_Rise_Devonport/blob/master/Preview1.png)
 
-![Preview2](https://github.com/UoA-eResearch/Sea_Level_Rise_Devonport/blob/master/Preview2.png)
-
 ![Preview3](https://github.com/UoA-eResearch/Sea_Level_Rise_Devonport/blob/master/Preview3.png)

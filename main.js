@@ -18,6 +18,7 @@ var DevonportModel2;
 var TamakiModel;
 var RangitotoModel;
 var BridgeModel;
+var SkytowerModel;
 
 var fileData, tideData;
 var dataArray = [];
@@ -218,6 +219,23 @@ window.onload = function() {
 			
 		}, onProgress, onError );
 		
+		var ObLoader = new THREE.OBJLoader(manager);
+
+		var MTLLoader = new THREE.MTLLoader(manager);
+		MTLLoader.setPath("./Skytower/");
+		MTLLoader.load("Skytower.mtl", function ( materials ) {
+
+			materials.preload();
+
+			ObLoader
+				.setMaterials( materials )
+				.load( './Skytower/Skytower.obj', function ( object ) {
+					SkytowerModel = object;
+					SkytowerModel.position.set(-2800, 0, 3070);
+					SkytowerModel.scale.set(1.5, 1.5, 1.5);
+				});
+
+			});
 
 		
 	} else {
@@ -255,6 +273,7 @@ function init() {
     DevonportModel.position.set(-445, 0.0, -725);
 	
 	scene.add( DevonportModel );
+	scene.add( SkytowerModel );
 	
 	//
 	camera = new THREE.PerspectiveCamera( 48, window.innerWidth / window.innerHeight, 500, 35000 );
@@ -420,7 +439,7 @@ function init() {
 		}
 		
 	});
-	
+
 	loadDevonport2();
     loadCity();
     loadRangitoto();
@@ -432,9 +451,9 @@ function loadCity() {
 	var textureLoader = new THREE.TextureLoader();
 	var ObjLoader = new THREE.OBJLoader();
 	
-	var textureTamaki = textureLoader.load( './Tamaki/Img.png' );
+	var textureTamaki = textureLoader.load( './Tamaki1/Imagery_Merged_Clipped.png' );
 
-	ObjLoader.load( './Tamaki/Tamaki.obj', function ( object ) {
+	ObjLoader.load( './Tamaki1/Tamaki.obj', function ( object ) {
 		object.traverse( function ( child ) {
 			if ( child instanceof THREE.Mesh ) {
 				child.material.map = textureTamaki;
@@ -539,7 +558,8 @@ function loadBridge() {
         BridgeModel = object;
         BridgeModel.position.set(-3600, 0, 500);
         scene.add(BridgeModel);
-    });
+	});
+	
 	
 }
 
