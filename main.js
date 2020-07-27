@@ -319,7 +319,7 @@ function init() {
 		water.material
 	);
 	
-	mirrorMesh.scale.set(2.5, 2.5, 2.5);
+	mirrorMesh.scale.set(3.5, 3.5, 3.5);
 	mirrorMesh.add( water );
 	mirrorMesh.rotation.x = - Math.PI * 0.5;
 	
@@ -340,6 +340,7 @@ function init() {
 	scene.add( mirrorMeshComplete);
 	
 	//Change sea level height here
+	mirrorMeshComplete.scale.set(3.5, 3.5, 3.5);
 	mirrorMeshComplete.position.set(0, 0.0, 0);
 	mirrorMeshComplete.visible = false;
 	
